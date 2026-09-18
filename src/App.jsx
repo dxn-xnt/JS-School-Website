@@ -1,42 +1,52 @@
 import React from "react";
-import { CourseProvider, useCourse } from "@/context/CourseContext";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { SearchModal } from "@/components/search/SearchModal";
-import { ProfileModal } from "@/components/profile/ProfileModal";
-import { HomePage } from "@/pages/HomePage";
-import { LessonsPage } from "@/pages/LessonsPage";
-import { PracticePage } from "@/pages/PracticePage";
-import { QuizPage } from "@/pages/QuizPage";
-import { AboutPage } from "@/pages/AboutPage";
+import { SchoolProvider, useSchool } from "./context/SchoolContext";
+import { Sidebar } from "./components/layout/Sidebar";
+import { Header } from "./components/layout/Header";
+import { Toast } from "./components/common/UIComponents";
+import { DashboardPage } from "./pages/DashboardPage";
+import { ClassesPage } from "./pages/ClassesPage";
+import { ClassDetailsPage } from "./pages/ClassDetailsPage";
+import { StudentsPage } from "./pages/StudentsPage";
+import { TeachersPage } from "./pages/TeachersPage";
+import { SubjectsPage } from "./pages/SubjectsPage";
+import { SchedulesPage } from "./pages/SchedulesPage";
+import { JsConceptsPage } from "./pages/JsConceptsPage";
 import "./App.css";
 
 function AppContent() {
-  const { activePage } = useCourse();
+  const { activePage, toast } = useSchool();
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
-      <Navbar />
+    <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
+      {/* Sidebar Navigation */}
+      <Sidebar />
 
-      <div className="flex-1">
-        {activePage === "home" && <HomePage />}
-        {activePage === "lessons" && <LessonsPage />}
-        {activePage === "practice" && <PracticePage />}
-        {activePage === "quiz" && <QuizPage />}
-        {activePage === "about" && <AboutPage />}
+      {/* Main Administrative Workspace */}
+      <div className="flex-1 flex flex-col min-w-0">
+        <Header />
+
+        <main className="flex-1 pb-16">
+          {activePage === "dashboard" && <DashboardPage />}
+          {activePage === "classes" && <ClassesPage />}
+          {activePage === "class-details" && <ClassDetailsPage />}
+          {activePage === "students" && <StudentsPage />}
+          {activePage === "teachers" && <TeachersPage />}
+          {activePage === "subjects" && <SubjectsPage />}
+          {activePage === "schedules" && <SchedulesPage />}
+          {activePage === "js-concepts" && <JsConceptsPage />}
+        </main>
       </div>
 
-      <Footer />
-      <SearchModal />
-      <ProfileModal />
+      {/* Floating System Toast */}
+      <Toast toast={toast} />
     </div>
   );
 }
 
 export default function App() {
   return (
-    <CourseProvider>
+    <SchoolProvider>
       <AppContent />
-    </CourseProvider>
+    </SchoolProvider>
   );
 }
