@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button } from "../common/UIComponents";
+import { Modal } from "../common/UIComponents";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useSchool } from "../../context/SchoolContext";
 import { GRADE_LEVELS } from "../../data";
 
@@ -91,48 +93,46 @@ export function ClassModal({ isOpen, onClose, initialData = null }) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Class Name *
             </label>
-            <input
+            <Input
               type="text"
               name="name"
               required
               placeholder="e.g. Grade 10-A (Honors STEM)"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Class Code
             </label>
-            <input
+            <Input
               type="text"
               name="code"
               placeholder="e.g. G10-A"
               value={formData.code}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Grade Level
             </label>
             <select
               name="grade"
               value={formData.grade}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground focus:ring-2 focus:ring-ring cursor-pointer"
             >
               {GRADE_LEVELS.map((g) => (
-                <option key={g} value={g}>
+                <option key={g} value={g} className="bg-background text-foreground">
                   {g}
                 </option>
               ))}
@@ -140,48 +140,46 @@ export function ClassModal({ isOpen, onClose, initialData = null }) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Assigned Room
             </label>
-            <input
+            <Input
               type="text"
               name="room"
               placeholder="e.g. Science Wing 301"
               value={formData.room}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Max Student Capacity
             </label>
-            <input
+            <Input
               type="number"
               name="capacity"
               min="5"
               max="50"
               value={formData.capacity}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-xs font-semibold text-foreground mb-1.5">
             Lead Class Teacher
           </label>
           <select
             name="teacherId"
             value={formData.teacherId}
             onChange={handleChange}
-            className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground focus:ring-2 focus:ring-ring cursor-pointer"
           >
-            <option value="">-- No Lead Teacher Assigned --</option>
+            <option value="" className="bg-background text-foreground">-- No Lead Teacher Assigned --</option>
             {teachers.map((t) => (
-              <option key={t.id} value={t.id}>
+              <option key={t.id} value={t.id} className="bg-background text-foreground">
                 {t.name} ({t.department})
               </option>
             ))}
@@ -189,7 +187,7 @@ export function ClassModal({ isOpen, onClose, initialData = null }) {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-xs font-semibold text-foreground mb-1.5">
             Course Description
           </label>
           <textarea
@@ -198,15 +196,15 @@ export function ClassModal({ isOpen, onClose, initialData = null }) {
             placeholder="Brief overview of curriculum or cohort focus..."
             value={formData.description}
             onChange={handleChange}
-            className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-lg border border-input bg-transparent p-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring outline-none"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          <label className="block text-xs font-semibold text-foreground mb-2">
             Assign Initial Subjects ({formData.subjectIds.length} selected)
           </label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-36 overflow-y-auto p-2 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950/40">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-36 overflow-y-auto p-2 border border-border rounded-xl bg-muted/30">
             {subjects.map((sbj) => {
               const isSelected = formData.subjectIds.includes(sbj.id);
               return (
@@ -214,14 +212,14 @@ export function ClassModal({ isOpen, onClose, initialData = null }) {
                   key={sbj.id}
                   type="button"
                   onClick={() => handleSubjectToggle(sbj.id)}
-                  className={`px-2.5 py-1.5 text-xs text-left rounded-lg font-medium transition-all border ${
+                  className={`px-2.5 py-1.5 text-xs text-left rounded-lg font-medium transition-all border cursor-pointer ${
                     isSelected
-                      ? "bg-blue-600 text-white border-blue-600 shadow-xs"
-                      : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300"
+                      ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                      : "bg-card text-foreground border-border hover:bg-muted"
                   }`}
                 >
                   <div className="truncate font-semibold">{sbj.name}</div>
-                  <div className={`text-[10px] ${isSelected ? "text-blue-100" : "text-slate-400"}`}>
+                  <div className={`text-[10px] ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
                     {sbj.code} • {sbj.credits} cr
                   </div>
                 </button>
@@ -230,11 +228,11 @@ export function ClassModal({ isOpen, onClose, initialData = null }) {
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
-          <Button variant="secondary" onClick={onClose}>
+        <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-border">
+          <Button variant="outline" onClick={onClose} size="sm">
             Cancel
           </Button>
-          <Button type="submit" variant="primary">
+          <Button type="submit" variant="default" size="sm">
             {isEditing ? "Save Changes" : "Create Class"}
           </Button>
         </div>

@@ -1,8 +1,18 @@
 import React, { useState, useMemo } from "react";
 import { useSchool } from "../context/SchoolContext";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import {
-  Button,
-  Badge,
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell
+} from "@/components/ui/table";
+import {
   SearchInput,
   SelectFilter,
   EmptyState,
@@ -18,9 +28,7 @@ import {
   RotateCcw,
   Trash2,
   Users,
-  BookOpen,
-  ArrowRight,
-  UserCheck
+  ArrowRight
 } from "lucide-react";
 import { ClassModal } from "../components/modals/ClassModal";
 import { GRADE_LEVELS } from "../data";
@@ -47,17 +55,14 @@ export function ClassesPage() {
 
   const activeSearch = localSearch || globalSearch;
 
-  // 8. TYPES OF FUNCTIONS: Filter higher order memoization
+  // Filter classes
   const filteredClasses = useMemo(() => {
     return classes.filter((cls) => {
-      // Status filter
       if (statusFilter === "ACTIVE" && cls.isArchived) return false;
       if (statusFilter === "ARCHIVED" && !cls.isArchived) return false;
 
-      // Grade filter
       if (gradeFilter !== "ALL" && cls.grade !== gradeFilter) return false;
 
-      // Search filter
       if (activeSearch.trim()) {
         const query = activeSearch.toLowerCase().trim();
         const teacher = getTeacherById(cls.teacherId);
@@ -78,85 +83,88 @@ export function ClassesPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <GraduationCap className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+          <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <GraduationCap className="w-6 h-6 text-primary" />
             Class Management
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             Create and maintain academic class sections, teacher assignments, and rosters.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <Button
-            variant="primary"
-            icon={Plus}
+            variant="default"
             onClick={() => setModalState({ isOpen: true, data: null })}
+            className="gap-1.5"
           >
-            Create Class Section
+            <Plus className="w-4 h-4" />
+            <span>Create Class Section</span>
           </Button>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
-        <div className="flex-1 flex flex-col sm:flex-row items-center gap-2.5">
-          <div className="w-full sm:w-72">
-            <SearchInput
-              value={localSearch}
-              onChange={setLocalSearch}
-              placeholder="Search by name, room, or code..."
-            />
+      <Card className="p-4 shadow-xs">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          <div className="flex-1 flex flex-col sm:flex-row items-center gap-2.5">
+            <div className="w-full sm:w-72">
+              <SearchInput
+                value={localSearch}
+                onChange={setLocalSearch}
+                placeholder="Search by name, room, or code..."
+              />
+            </div>
+
+            <div className="w-full sm:w-40">
+              <SelectFilter
+                value={gradeFilter}
+                onChange={setGradeFilter}
+                label="All Grade Levels"
+                options={GRADE_LEVELS}
+              />
+            </div>
+
+            <div className="w-full sm:w-36">
+              <SelectFilter
+                value={statusFilter}
+                onChange={setStatusFilter}
+                options={[
+                  { value: "ALL", label: "All Statuses" },
+                  { value: "ACTIVE", label: "Active Only" },
+                  { value: "ARCHIVED", label: "Archived Only" }
+                ]}
+              />
+            </div>
           </div>
 
-          <div className="w-full sm:w-40">
-            <SelectFilter
-              value={gradeFilter}
-              onChange={setGradeFilter}
-              label="All Grade Levels"
-              options={GRADE_LEVELS}
-            />
-          </div>
-
-          <div className="w-full sm:w-36">
-            <SelectFilter
-              value={statusFilter}
-              onChange={setStatusFilter}
-              options={[
-                { value: "ALL", label: "All Statuses" },
-                { value: "ACTIVE", label: "Active Only" },
-                { value: "ARCHIVED", label: "Archived Only" }
-              ]}
-            />
+          {/* View Toggle */}
+          <div className="flex items-center gap-1 border border-border p-1 rounded-lg bg-muted/40 shrink-0 self-end md:self-auto">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`p-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
+                viewMode === "grid"
+                  ? "bg-background text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+              title="Grid View"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode("table")}
+              className={`p-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
+                viewMode === "table"
+                  ? "bg-background text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+              title="Table View"
+            >
+              <List className="w-4 h-4" />
+            </button>
           </div>
         </div>
-
-        {/* View Toggle */}
-        <div className="flex items-center gap-1 border border-slate-200 dark:border-slate-800 p-1 rounded-xl bg-slate-50 dark:bg-slate-950/40 shrink-0 self-end md:self-auto">
-          <button
-            onClick={() => setViewMode("grid")}
-            className={`p-1.5 rounded-lg text-xs font-semibold transition-all ${
-              viewMode === "grid"
-                ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs"
-                : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
-            }`}
-            title="Grid View"
-          >
-            <LayoutGrid className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setViewMode("table")}
-            className={`p-1.5 rounded-lg text-xs font-semibold transition-all ${
-              viewMode === "table"
-                ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-xs"
-                : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
-            }`}
-            title="Table View"
-          >
-            <List className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
+      </Card>
 
       {/* Class Content Area */}
       {filteredClasses.length === 0 ? (
@@ -176,54 +184,54 @@ export function ClassesPage() {
             const capacityRatio = Math.round((enrolled.length / cls.capacity) * 100);
 
             return (
-              <div
+              <Card
                 key={cls.id}
-                className={`rounded-2xl border bg-white dark:bg-slate-900 p-5 shadow-xs transition-all duration-200 hover:shadow-md flex flex-col justify-between ${
+                className={`p-5 shadow-xs flex flex-col justify-between hover:shadow-md transition-all ${
                   cls.isArchived
-                    ? "border-amber-200 dark:border-amber-900/40 opacity-75 bg-amber-50/20"
-                    : "border-slate-200 dark:border-slate-800"
+                    ? "border-amber-500/30 opacity-80 bg-amber-500/5"
+                    : ""
                 }`}
               >
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2">
-                        <Badge size="sm" variant={cls.isArchived ? "warning" : "primary"}>
+                        <Badge variant={cls.isArchived ? "secondary" : "default"}>
                           {cls.grade}
                         </Badge>
-                        <Badge size="sm" variant="outline">
+                        <Badge variant="outline">
                           {cls.code}
                         </Badge>
                         {cls.isArchived && (
-                          <Badge size="sm" variant="warning">
+                          <Badge variant="destructive">
                             Archived
                           </Badge>
                         )}
                       </div>
-                      <h3 className="mt-2 text-base font-bold text-slate-900 dark:text-white">
+                      <h3 className="mt-2 text-base font-bold text-foreground">
                         {cls.name}
                       </h3>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        Room: <span className="font-semibold text-slate-700 dark:text-slate-300">{cls.room}</span>
+                      <p className="text-xs text-muted-foreground">
+                        Room: <span className="font-semibold text-foreground">{cls.room}</span>
                       </p>
                     </div>
                   </div>
 
-                  <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
+                  <p className="text-xs text-muted-foreground line-clamp-2">
                     {cls.description || "Curriculum program and student cohort."}
                   </p>
 
                   {/* Teacher & Subjects Pills */}
-                  <div className="rounded-xl bg-slate-50 dark:bg-slate-950/40 p-3 space-y-2 border border-slate-100 dark:border-slate-800 text-xs">
+                  <div className="rounded-xl bg-muted/40 p-3 space-y-2 border border-border text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500 font-medium">Lead Teacher:</span>
-                      <span className="font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[150px]">
+                      <span className="text-muted-foreground font-medium">Lead Teacher:</span>
+                      <span className="font-semibold text-foreground truncate max-w-[150px]">
                         {leadTeacher?.name || "Unassigned"}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500 font-medium">Subjects Taught:</span>
-                      <span className="font-semibold text-blue-600 dark:text-blue-400">
+                      <span className="text-muted-foreground font-medium">Subjects Taught:</span>
+                      <span className="font-semibold text-primary">
                         {cls.subjectIds?.length || 0} Courses
                       </span>
                     </div>
@@ -232,61 +240,55 @@ export function ClassesPage() {
                   {/* Capacity Bar */}
                   <div className="space-y-1.5">
                     <div className="flex justify-between text-xs font-semibold">
-                      <span className="text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+                      <span className="text-muted-foreground flex items-center gap-1.5">
                         <Users className="w-3.5 h-3.5" />
                         Class Capacity
                       </span>
-                      <span className="text-slate-900 dark:text-white">
+                      <span className="text-foreground">
                         {enrolled.length} / {cls.capacity} students ({capacityRatio}%)
                       </span>
                     </div>
-                    <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${
-                          capacityRatio >= 100
-                            ? "bg-rose-500"
-                            : capacityRatio >= 80
-                            ? "bg-amber-500"
-                            : "bg-emerald-500"
-                        }`}
-                        style={{ width: `${Math.min(capacityRatio, 100)}%` }}
-                      />
-                    </div>
+                    <Progress value={Math.min(capacityRatio, 100)} className="h-2" />
                   </div>
                 </div>
 
                 {/* Card Actions */}
-                <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                <div className="mt-5 pt-4 border-t border-border flex items-center justify-between gap-2">
                   <Button
-                    variant="primary"
+                    variant="default"
                     size="sm"
-                    icon={ArrowRight}
-                    iconPosition="right"
                     onClick={() => navigateTo("class-details", cls.id)}
+                    className="gap-1.5"
                   >
-                    View Details
+                    <span>View Details</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </Button>
 
                   <div className="flex items-center gap-1">
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       onClick={() => setModalState({ isOpen: true, data: cls })}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                       title="Edit Class"
                     >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       onClick={() => toggleArchiveClass(cls.id)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                       title={cls.isArchived ? "Restore Class" : "Archive Class"}
                     >
                       {cls.isArchived ? (
-                        <RotateCcw className="w-4 h-4" />
+                        <RotateCcw className="w-3.5 h-3.5" />
                       ) : (
-                        <Archive className="w-4 h-4" />
+                        <Archive className="w-3.5 h-3.5" />
                       )}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-destructive hover:bg-destructive/10"
                       onClick={() =>
                         setDeleteConfirm({
                           isOpen: true,
@@ -294,78 +296,73 @@ export function ClassesPage() {
                           className: cls.name
                         })
                       }
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                       title="Delete Class"
                     >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
                   </div>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>
       ) : (
         /* TABLE VIEW */
-        <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-950/50 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              <tr>
-                <th className="px-5 py-3.5">Class Section</th>
-                <th className="px-5 py-3.5">Grade</th>
-                <th className="px-5 py-3.5">Room</th>
-                <th className="px-5 py-3.5">Lead Teacher</th>
-                <th className="px-5 py-3.5">Enrollment</th>
-                <th className="px-5 py-3.5">Status</th>
-                <th className="px-5 py-3.5 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+        <Card className="overflow-hidden p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/40">
+                <TableHead className="px-5 py-3.5">Class Section</TableHead>
+                <TableHead className="px-5 py-3.5">Grade</TableHead>
+                <TableHead className="px-5 py-3.5">Room</TableHead>
+                <TableHead className="px-5 py-3.5">Lead Teacher</TableHead>
+                <TableHead className="px-5 py-3.5">Enrollment</TableHead>
+                <TableHead className="px-5 py-3.5">Status</TableHead>
+                <TableHead className="px-5 py-3.5 text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {filteredClasses.map((cls) => {
                 const leadTeacher = getTeacherById(cls.teacherId);
                 const enrolled = getEnrolledStudentsForClass(cls.id);
 
                 return (
-                  <tr
-                    key={cls.id}
-                    className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
-                  >
-                    <td className="px-5 py-4">
+                  <TableRow key={cls.id}>
+                    <TableCell className="px-5 py-3.5">
                       <div>
-                        <span className="font-bold text-slate-900 dark:text-white">
+                        <span className="font-bold text-foreground">
                           {cls.name}
                         </span>
-                        <div className="text-xs text-slate-400">{cls.code}</div>
+                        <div className="text-xs text-muted-foreground">{cls.code}</div>
                       </div>
-                    </td>
-                    <td className="px-5 py-4">
-                      <Badge size="sm" variant="default">
+                    </TableCell>
+                    <TableCell className="px-5 py-3.5">
+                      <Badge variant="outline">
                         {cls.grade}
                       </Badge>
-                    </td>
-                    <td className="px-5 py-4 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    </TableCell>
+                    <TableCell className="px-5 py-3.5 text-xs font-semibold text-foreground">
                       {cls.room}
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className="text-xs font-medium text-slate-800 dark:text-slate-200">
+                    </TableCell>
+                    <TableCell className="px-5 py-3.5">
+                      <span className="text-xs font-medium text-foreground">
                         {leadTeacher?.name || "Unassigned"}
                       </span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="text-xs font-semibold text-slate-900 dark:text-white">
+                    </TableCell>
+                    <TableCell className="px-5 py-3.5">
+                      <div className="text-xs font-semibold text-foreground">
                         {enrolled.length} / {cls.capacity} students
                       </div>
-                    </td>
-                    <td className="px-5 py-4">
+                    </TableCell>
+                    <TableCell className="px-5 py-3.5">
                       <Badge
-                        size="sm"
-                        variant={cls.isArchived ? "warning" : "success"}
+                        variant={cls.isArchived ? "secondary" : "default"}
                       >
                         {cls.isArchived ? "Archived" : "Active"}
                       </Badge>
-                    </td>
-                    <td className="px-5 py-4 text-right">
-                      <div className="inline-flex items-center gap-1.5">
+                    </TableCell>
+                    <TableCell className="px-5 py-3.5 text-right">
+                      <div className="inline-flex items-center gap-1">
                         <Button
                           variant="secondary"
                           size="sm"
@@ -373,19 +370,24 @@ export function ClassesPage() {
                         >
                           Details
                         </Button>
-                        <button
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
                           onClick={() => setModalState({ isOpen: true, data: cls })}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800"
                         >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
                           onClick={() => toggleArchiveClass(cls.id)}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-slate-800"
                         >
-                          <Archive className="w-4 h-4" />
-                        </button>
-                        <button
+                          <Archive className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          className="text-destructive hover:bg-destructive/10"
                           onClick={() =>
                             setDeleteConfirm({
                               isOpen: true,
@@ -393,18 +395,17 @@ export function ClassesPage() {
                               className: cls.name
                             })
                           }
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-slate-100 dark:hover:bg-slate-800"
                         >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 );
               })}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </Card>
       )}
 
       {/* Class Modal */}

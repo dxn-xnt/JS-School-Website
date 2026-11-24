@@ -1,7 +1,11 @@
 import React, { useState } from "react";
-import { Modal, Button, SearchInput, Badge } from "../common/UIComponents";
+import { Modal, SearchInput } from "../common/UIComponents";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Card } from "@/components/ui/card";
 import { useSchool } from "../../context/SchoolContext";
-import { UserPlus, Check, UserMinus } from "lucide-react";
+import { UserPlus, UserMinus } from "lucide-react";
 
 export function AssignStudentModal({ isOpen, onClose, classId }) {
   const { classes, students, assignStudentToClass, removeStudentFromClass } = useSchool();
@@ -37,9 +41,9 @@ export function AssignStudentModal({ isOpen, onClose, classId }) {
           placeholder="Search students by name, email, or grade..."
         />
 
-        <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-80 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <Card className="divide-y divide-border max-h-80 overflow-y-auto p-0">
           {filteredStudents.length === 0 ? (
-            <div className="p-6 text-center text-xs text-slate-500">
+            <div className="p-6 text-center text-xs text-muted-foreground">
               No students found matching your search.
             </div>
           ) : (
@@ -48,28 +52,30 @@ export function AssignStudentModal({ isOpen, onClose, classId }) {
               return (
                 <div
                   key={student.id}
-                  className="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                  className="flex items-center justify-between p-3 hover:bg-muted/40 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 font-bold flex items-center justify-center text-xs">
-                      {student.name.charAt(0)}
-                    </div>
+                    <Avatar size="sm" className="bg-primary/10 text-primary font-bold">
+                      <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                        {student.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                        <span className="text-sm font-semibold text-foreground">
                           {student.name}
                         </span>
-                        <Badge size="sm" variant="default">
+                        <Badge variant="outline">
                           {student.grade}
                         </Badge>
                         {isEnrolled && (
-                          <Badge size="sm" variant="success">
+                          <Badge variant="default">
                             Enrolled
                           </Badge>
                         )}
                       </div>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        {student.email} • GPA {student.gpa} • Attendance {student.attendanceRate}%
+                      <p className="text-xs text-muted-foreground">
+                        {student.email} • {student.contact?.phone || "No phone"}
                       </p>
                     </div>
                   </div>
@@ -79,21 +85,22 @@ export function AssignStudentModal({ isOpen, onClose, classId }) {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border-rose-200 dark:border-rose-900"
-                        icon={UserMinus}
+                        className="text-destructive hover:bg-destructive/10 border-destructive/30 gap-1"
                         onClick={() => removeStudentFromClass(classId, student.id)}
                       >
-                        Remove
+                        <UserMinus className="w-3.5 h-3.5" />
+                        <span>Remove</span>
                       </Button>
                     ) : (
                       <Button
                         size="sm"
-                        variant="primary"
+                        variant="default"
                         disabled={isFull}
-                        icon={UserPlus}
                         onClick={() => assignStudentToClass(classId, student.id)}
+                        className="gap-1"
                       >
-                        {isFull ? "Class Full" : "Enroll"}
+                        <UserPlus className="w-3.5 h-3.5" />
+                        <span>{isFull ? "Class Full" : "Enroll"}</span>
                       </Button>
                     )}
                   </div>
@@ -101,10 +108,10 @@ export function AssignStudentModal({ isOpen, onClose, classId }) {
               );
             })
           )}
-        </div>
+        </Card>
 
-        <div className="flex justify-end pt-3 border-t border-slate-100 dark:border-slate-800">
-          <Button variant="secondary" onClick={onClose} size="sm">
+        <div className="flex justify-end pt-3 border-t border-border">
+          <Button variant="outline" onClick={onClose} size="sm">
             Close
           </Button>
         </div>

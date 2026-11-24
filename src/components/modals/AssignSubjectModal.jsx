@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { Modal, Button, SearchInput, Badge } from "../common/UIComponents";
+import { Modal, SearchInput } from "../common/UIComponents";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { useSchool } from "../../context/SchoolContext";
 import { BookPlus, Trash2 } from "lucide-react";
 
@@ -34,9 +37,9 @@ export function AssignSubjectModal({ isOpen, onClose, classId }) {
           placeholder="Search subjects by title, code, or department..."
         />
 
-        <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-80 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <Card className="divide-y divide-border max-h-80 overflow-y-auto p-0">
           {filteredSubjects.length === 0 ? (
-            <div className="p-6 text-center text-xs text-slate-500">
+            <div className="p-6 text-center text-xs text-muted-foreground">
               No subjects found matching your query.
             </div>
           ) : (
@@ -45,23 +48,23 @@ export function AssignSubjectModal({ isOpen, onClose, classId }) {
               return (
                 <div
                   key={subject.id}
-                  className="flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                  className="flex items-center justify-between p-3.5 hover:bg-muted/40 transition-colors"
                 >
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                      <span className="text-sm font-semibold text-foreground">
                         {subject.name}
                       </span>
-                      <Badge size="sm" variant="default">
+                      <Badge variant="outline">
                         {subject.code}
                       </Badge>
                       {isAssigned && (
-                        <Badge size="sm" variant="primary">
+                        <Badge variant="default">
                           Taught Here
                         </Badge>
                       )}
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       {subject.department} • {subject.credits} Credit Units • {subject.weeklyHours} hrs/week
                     </p>
                   </div>
@@ -71,20 +74,21 @@ export function AssignSubjectModal({ isOpen, onClose, classId }) {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border-rose-200 dark:border-rose-900"
-                        icon={Trash2}
+                        className="text-destructive hover:bg-destructive/10 border-destructive/30 gap-1"
                         onClick={() => removeSubjectFromClass(classId, subject.id)}
                       >
-                        Remove
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Remove</span>
                       </Button>
                     ) : (
                       <Button
                         size="sm"
-                        variant="primary"
-                        icon={BookPlus}
+                        variant="default"
                         onClick={() => assignSubjectToClass(classId, subject.id)}
+                        className="gap-1"
                       >
-                        Assign Subject
+                        <BookPlus className="w-3.5 h-3.5" />
+                        <span>Assign Subject</span>
                       </Button>
                     )}
                   </div>
@@ -92,10 +96,10 @@ export function AssignSubjectModal({ isOpen, onClose, classId }) {
               );
             })
           )}
-        </div>
+        </Card>
 
-        <div className="flex justify-end pt-3 border-t border-slate-100 dark:border-slate-800">
-          <Button variant="secondary" onClick={onClose} size="sm">
+        <div className="flex justify-end pt-3 border-t border-border">
+          <Button variant="outline" onClick={onClose} size="sm">
             Done
           </Button>
         </div>

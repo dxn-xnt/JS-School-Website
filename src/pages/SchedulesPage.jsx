@@ -1,8 +1,17 @@
 import React, { useState, useMemo } from "react";
 import { useSchool } from "../context/SchoolContext";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
-  Button,
-  Badge,
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell
+} from "@/components/ui/table";
+import {
   SelectFilter,
   EmptyState,
   ConfirmDialog
@@ -16,7 +25,6 @@ import {
   Trash2,
   Clock,
   MapPin,
-  UserCheck,
   GraduationCap
 } from "lucide-react";
 import { ScheduleModal } from "../components/modals/ScheduleModal";
@@ -34,7 +42,7 @@ export function SchedulesPage() {
     getTeacherById
   } = useSchool();
 
-  const [viewMode, setViewMode] = useState("timetable"); // 'timetable' | 'list'
+  const [viewMode, setViewMode] = useState("timetable");
   const [dayFilter, setDayFilter] = useState("ALL");
   const [classFilter, setClassFilter] = useState("ALL");
   const [subjectFilter, setSubjectFilter] = useState("ALL");
@@ -57,199 +65,202 @@ export function SchedulesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <CalendarDays className="w-6 h-6 text-rose-600 dark:text-rose-400" />
+          <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <CalendarDays className="w-6 h-6 text-primary" />
             School Weekly Schedules & Timetable
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             Coordinate weekly periods, room allocations, instructor assignments, and cohort timelines.
           </p>
         </div>
 
         <Button
-          variant="primary"
-          icon={Plus}
+          variant="default"
           onClick={() => setModalState({ isOpen: true, data: null })}
+          className="gap-1.5"
         >
-          Add Timetable Slot
+          <Plus className="w-4 h-4" />
+          <span>Add Timetable Slot</span>
         </Button>
       </div>
 
       {/* Filter and View Bar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
-        <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-          <SelectFilter
-            value={dayFilter}
-            onChange={setDayFilter}
-            label="All Weekdays"
-            options={WEEKDAYS}
-          />
+      <Card className="p-4 shadow-xs">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <SelectFilter
+              value={dayFilter}
+              onChange={setDayFilter}
+              label="All Weekdays"
+              options={WEEKDAYS}
+            />
 
-          <SelectFilter
-            value={classFilter}
-            onChange={setClassFilter}
-            label="All Classes"
-            options={classes.map((c) => ({ value: c.id, label: c.name }))}
-          />
+            <SelectFilter
+              value={classFilter}
+              onChange={setClassFilter}
+              label="All Classes"
+              options={classes.map((c) => ({ value: c.id, label: c.name }))}
+            />
 
-          <SelectFilter
-            value={subjectFilter}
-            onChange={setSubjectFilter}
-            label="All Subjects"
-            options={subjects.map((s) => ({ value: s.id, label: `${s.code} - ${s.name}` }))}
-          />
+            <SelectFilter
+              value={subjectFilter}
+              onChange={setSubjectFilter}
+              label="All Subjects"
+              options={subjects.map((s) => ({ value: s.id, label: `${s.code} - ${s.name}` }))}
+            />
+          </div>
+
+          {/* View Mode Switcher */}
+          <div className="flex items-center gap-1 border border-border p-1 rounded-lg bg-muted/40 shrink-0 self-end md:self-auto">
+            <button
+              onClick={() => setViewMode("timetable")}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                viewMode === "timetable"
+                  ? "bg-background text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>Weekly Matrix</span>
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                viewMode === "list"
+                  ? "bg-background text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <List className="w-3.5 h-3.5" />
+              <span>List View</span>
+            </button>
+          </div>
         </div>
+      </Card>
 
-        {/* View Mode Switcher */}
-        <div className="flex items-center gap-1 border border-slate-200 dark:border-slate-800 p-1 rounded-xl bg-slate-50 dark:bg-slate-950/40 shrink-0 self-end md:self-auto">
-          <button
-            onClick={() => setViewMode("timetable")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              viewMode === "timetable"
-                ? "bg-white dark:bg-slate-800 text-rose-600 dark:text-rose-400 shadow-xs"
-                : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
-            }`}
-          >
-            <LayoutGrid className="w-3.5 h-3.5" />
-            <span>Weekly Matrix</span>
-          </button>
-          <button
-            onClick={() => setViewMode("list")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              viewMode === "list"
-                ? "bg-white dark:bg-slate-800 text-rose-600 dark:text-rose-400 shadow-xs"
-                : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
-            }`}
-          >
-            <List className="w-3.5 h-3.5" />
-            <span>List View</span>
-          </button>
-        </div>
-      </div>
-
-      {/* -------------------------------------------------------------------- */}
       {/* TIMETABLE MATRIX VIEW */}
-      {/* -------------------------------------------------------------------- */}
       {viewMode === "timetable" ? (
-        <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
-          <table className="w-full text-left text-sm border-collapse min-w-[900px]">
-            <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 text-xs font-bold uppercase tracking-wider text-slate-500">
-                <th className="p-4 w-36 border-r border-slate-200 dark:border-slate-800">
-                  Time Period
-                </th>
-                {WEEKDAYS.map((day) => (
-                  <th
-                    key={day}
-                    className={`p-4 border-r border-slate-200 dark:border-slate-800 last:border-r-0 ${
-                      dayFilter !== "ALL" && dayFilter !== day ? "opacity-40" : ""
-                    }`}
-                  >
-                    {day}
+        <Card className="overflow-hidden p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm border-collapse min-w-[900px]">
+              <thead>
+                <tr className="border-b border-border bg-muted/40 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <th className="p-4 w-36 border-r border-border">
+                    Time Period
                   </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {SCHEDULE_TIME_SLOTS.map((timeSlot) => (
-                <tr key={timeSlot} className="hover:bg-slate-50/40 dark:hover:bg-slate-800/20">
-                  {/* Time slot column */}
-                  <td className="p-3.5 border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/30 font-semibold text-xs text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                    <div className="flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{timeSlot}</span>
-                    </div>
-                  </td>
+                  {WEEKDAYS.map((day) => (
+                    <th
+                      key={day}
+                      className={`p-4 border-r border-border last:border-r-0 ${
+                        dayFilter !== "ALL" && dayFilter !== day ? "opacity-40" : ""
+                      }`}
+                    >
+                      {day}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {SCHEDULE_TIME_SLOTS.map((timeSlot) => (
+                  <tr key={timeSlot} className="hover:bg-muted/20">
+                    {/* Time slot column */}
+                    <td className="p-3.5 border-r border-border bg-muted/20 font-semibold text-xs text-foreground whitespace-nowrap">
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                        <span>{timeSlot}</span>
+                      </div>
+                    </td>
 
-                  {/* Days columns */}
-                  {WEEKDAYS.map((day) => {
-                    // Match schedules in this cell
-                    const matchingSlots = filteredSchedules.filter(
-                      (s) => s.day === day && s.startTime === timeSlot
-                    );
+                    {/* Days columns */}
+                    {WEEKDAYS.map((day) => {
+                      const matchingSlots = filteredSchedules.filter(
+                        (s) => s.day === day && s.startTime === timeSlot
+                      );
 
-                    const isDimmed = dayFilter !== "ALL" && dayFilter !== day;
+                      const isDimmed = dayFilter !== "ALL" && dayFilter !== day;
 
-                    return (
-                      <td
-                        key={day}
-                        className={`p-2.5 border-r border-slate-200 dark:border-slate-800 last:border-r-0 align-top min-w-[170px] ${
-                          isDimmed ? "opacity-30" : ""
-                        }`}
-                      >
-                        {matchingSlots.length === 0 ? (
-                          <div className="h-14 rounded-xl border border-dashed border-slate-100 dark:border-slate-800/60 flex items-center justify-center text-[11px] text-slate-300 dark:text-slate-700">
-                            Available
-                          </div>
-                        ) : (
-                          <div className="space-y-2">
-                            {matchingSlots.map((slot) => {
-                              const cls = getClassById(slot.classId);
-                              const subject = getSubjectById(slot.subjectId);
-                              const teacher = getTeacherById(slot.teacherId);
+                      return (
+                        <td
+                          key={day}
+                          className={`p-2.5 border-r border-border last:border-r-0 align-top min-w-[170px] ${
+                            isDimmed ? "opacity-30" : ""
+                          }`}
+                        >
+                          {matchingSlots.length === 0 ? (
+                            <div className="h-14 rounded-xl border border-dashed border-border/60 flex items-center justify-center text-[11px] text-muted-foreground/60">
+                              Available
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              {matchingSlots.map((slot) => {
+                                const cls = getClassById(slot.classId);
+                                const subject = getSubjectById(slot.subjectId);
+                                const teacher = getTeacherById(slot.teacherId);
 
-                              return (
-                                <div
-                                  key={slot.id}
-                                  className="group rounded-xl p-2.5 border border-blue-100 dark:border-blue-900/60 bg-blue-50/60 dark:bg-blue-950/40 text-xs space-y-1.5 relative shadow-2xs hover:shadow-xs transition-all"
-                                >
-                                  <div className="flex items-start justify-between gap-1">
-                                    <span className="font-bold text-slate-900 dark:text-white leading-tight">
-                                      {subject?.name || "Subject"}
-                                    </span>
-                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                      <button
-                                        onClick={() => setModalState({ isOpen: true, data: slot })}
-                                        className="p-1 rounded text-slate-500 hover:text-blue-600"
-                                        title="Edit Slot"
-                                      >
-                                        <Edit2 className="w-3 h-3" />
-                                      </button>
-                                      <button
-                                        onClick={() =>
-                                          setDeleteConfirm({
-                                            isOpen: true,
-                                            scheduleId: slot.id
-                                          })
-                                        }
-                                        className="p-1 rounded text-slate-500 hover:text-rose-600"
-                                        title="Delete Slot"
-                                      >
-                                        <Trash2 className="w-3 h-3" />
-                                      </button>
+                                return (
+                                  <div
+                                    key={slot.id}
+                                    className="group rounded-xl p-2.5 border border-primary/20 bg-primary/5 text-xs space-y-1.5 relative shadow-2xs hover:shadow-xs transition-all"
+                                  >
+                                    <div className="flex items-start justify-between gap-1">
+                                      <span className="font-bold text-foreground leading-tight">
+                                        {subject?.name || "Subject"}
+                                      </span>
+                                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Button
+                                          variant="ghost"
+                                          size="icon-xs"
+                                          onClick={() => setModalState({ isOpen: true, data: slot })}
+                                          title="Edit Slot"
+                                        >
+                                          <Edit2 className="w-3 h-3" />
+                                        </Button>
+                                        <Button
+                                          variant="ghost"
+                                          size="icon-xs"
+                                          className="text-destructive hover:bg-destructive/10"
+                                          onClick={() =>
+                                            setDeleteConfirm({
+                                              isOpen: true,
+                                              scheduleId: slot.id
+                                            })
+                                          }
+                                          title="Delete Slot"
+                                        >
+                                          <Trash2 className="w-3 h-3" />
+                                        </Button>
+                                      </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-1 text-[11px] font-semibold text-primary">
+                                      <GraduationCap className="w-3 h-3" />
+                                      <span className="truncate">{cls?.name || "Class"}</span>
+                                    </div>
+
+                                    <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                                      <span className="flex items-center gap-0.5">
+                                        <MapPin className="w-2.5 h-2.5" />
+                                        {slot.room || "Room TBA"}
+                                      </span>
+                                      <span>{teacher ? teacher.name.split(" ")[1] : "No Teacher"}</span>
                                     </div>
                                   </div>
-
-                                  <div className="flex items-center gap-1 text-[11px] font-semibold text-blue-700 dark:text-blue-300">
-                                    <GraduationCap className="w-3 h-3" />
-                                    <span className="truncate">{cls?.name || "Class"}</span>
-                                  </div>
-
-                                  <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
-                                    <span className="flex items-center gap-0.5">
-                                      <MapPin className="w-2.5 h-2.5" />
-                                      {slot.room || "Room TBA"}
-                                    </span>
-                                    <span>{teacher ? teacher.name.split(" ")[1] : "No Teacher"}</span>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
       ) : (
-        /* ------------------------------------------------------------------ */
         /* LIST / TABLE VIEW */
-        /* ------------------------------------------------------------------ */
-        <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
+        <Card className="overflow-hidden p-0">
           {filteredSchedules.length === 0 ? (
             <EmptyState
               icon={CalendarDays}
@@ -259,83 +270,83 @@ export function SchedulesPage() {
               onAction={() => setModalState({ isOpen: true, data: null })}
             />
           ) : (
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 text-xs font-bold uppercase tracking-wider text-slate-500">
-                <tr>
-                  <th className="px-5 py-3.5">Day & Time</th>
-                  <th className="px-5 py-3.5">Subject</th>
-                  <th className="px-5 py-3.5">Class Section</th>
-                  <th className="px-5 py-3.5">Classroom</th>
-                  <th className="px-5 py-3.5">Instructor</th>
-                  <th className="px-5 py-3.5">Session Type</th>
-                  <th className="px-5 py-3.5 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/40">
+                  <TableHead className="px-5 py-3.5">Day & Time</TableHead>
+                  <TableHead className="px-5 py-3.5">Subject</TableHead>
+                  <TableHead className="px-5 py-3.5">Class Section</TableHead>
+                  <TableHead className="px-5 py-3.5">Classroom</TableHead>
+                  <TableHead className="px-5 py-3.5">Instructor</TableHead>
+                  <TableHead className="px-5 py-3.5">Session Type</TableHead>
+                  <TableHead className="px-5 py-3.5 text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {filteredSchedules.map((slot) => {
                   const cls = getClassById(slot.classId);
                   const subject = getSubjectById(slot.subjectId);
                   const teacher = getTeacherById(slot.teacherId);
 
                   return (
-                    <tr
-                      key={slot.id}
-                      className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
-                    >
-                      <td className="px-5 py-4">
-                        <div className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                          <span className="text-xs px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 font-bold">
+                    <TableRow key={slot.id}>
+                      <TableCell className="px-5 py-4">
+                        <div className="font-bold text-foreground flex items-center gap-2">
+                          <Badge variant="secondary" className="font-bold">
                             {slot.day}
-                          </span>
-                          <span className="text-xs text-slate-500">{slot.startTime}</span>
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">{slot.startTime}</span>
                         </div>
-                      </td>
-                      <td className="px-5 py-4 font-bold text-slate-900 dark:text-white">
+                      </TableCell>
+                      <TableCell className="px-5 py-4 font-bold text-foreground">
                         {subject?.name || "Subject"}
-                        <div className="text-xs text-slate-400 font-normal">{subject?.code}</div>
-                      </td>
-                      <td className="px-5 py-4 text-xs font-semibold text-slate-800 dark:text-slate-200">
+                        <div className="text-xs text-muted-foreground font-normal">{subject?.code}</div>
+                      </TableCell>
+                      <TableCell className="px-5 py-4 text-xs font-semibold text-foreground">
                         {cls?.name || "Class"}
-                      </td>
-                      <td className="px-5 py-4 text-xs font-medium text-slate-700 dark:text-slate-300">
+                      </TableCell>
+                      <TableCell className="px-5 py-4 text-xs font-medium text-muted-foreground">
                         {slot.room || cls?.room || "TBA"}
-                      </td>
-                      <td className="px-5 py-4 text-xs font-medium text-slate-800 dark:text-slate-200">
+                      </TableCell>
+                      <TableCell className="px-5 py-4 text-xs font-medium text-foreground">
                         {teacher?.name || "Unassigned"}
-                      </td>
-                      <td className="px-5 py-4">
-                        <Badge size="sm" variant="purple">
+                      </TableCell>
+                      <TableCell className="px-5 py-4">
+                        <Badge variant="outline">
                           {slot.type}
                         </Badge>
-                      </td>
-                      <td className="px-5 py-4 text-right">
-                        <div className="inline-flex items-center gap-1.5">
-                          <button
+                      </TableCell>
+                      <TableCell className="px-5 py-4 text-right">
+                        <div className="inline-flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
                             onClick={() => setModalState({ isOpen: true, data: slot })}
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800"
                           >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            className="text-destructive hover:bg-destructive/10"
                             onClick={() =>
                               setDeleteConfirm({
                                 isOpen: true,
                                 scheduleId: slot.id
                               })
                             }
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-slate-100 dark:hover:bg-slate-800"
                           >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   );
                 })}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           )}
-        </div>
+        </Card>
       )}
 
       {/* Schedule Modal */}

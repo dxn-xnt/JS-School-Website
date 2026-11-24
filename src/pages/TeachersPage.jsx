@@ -1,8 +1,10 @@
 import React, { useState, useMemo } from "react";
 import { useSchool } from "../context/SchoolContext";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
-  Button,
-  Badge,
   SearchInput,
   SelectFilter,
   EmptyState,
@@ -16,7 +18,6 @@ import {
   GraduationCap,
   Mail,
   Phone,
-  BookOpen,
   Award,
   Clock
 } from "lucide-react";
@@ -65,43 +66,46 @@ export function TeachersPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <UserCheck className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+          <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <UserCheck className="w-6 h-6 text-primary" />
             Faculty & Educator Directory
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             Manage certified instructors, teaching assignments, subject specialties, and departments.
           </p>
         </div>
 
         <Button
-          variant="primary"
-          icon={Plus}
+          variant="default"
           onClick={() => setModalState({ isOpen: true, data: null })}
+          className="gap-1.5"
         >
-          Add Faculty Teacher
+          <Plus className="w-4 h-4" />
+          <span>Add Faculty Teacher</span>
         </Button>
       </div>
 
       {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
-        <div className="w-full sm:w-80">
-          <SearchInput
-            value={localSearch}
-            onChange={setLocalSearch}
-            placeholder="Search teacher by name, degree, or specialty..."
-          />
-        </div>
+      <Card className="p-4 shadow-xs">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div className="w-full sm:w-80">
+            <SearchInput
+              value={localSearch}
+              onChange={setLocalSearch}
+              placeholder="Search teacher by name, degree, or specialty..."
+            />
+          </div>
 
-        <div className="w-full sm:w-56">
-          <SelectFilter
-            value={deptFilter}
-            onChange={setDeptFilter}
-            label="All Academic Departments"
-            options={DEPARTMENTS}
-          />
+          <div className="w-full sm:w-56">
+            <SelectFilter
+              value={deptFilter}
+              onChange={setDeptFilter}
+              label="All Academic Departments"
+              options={DEPARTMENTS}
+            />
+          </div>
         </div>
-      </div>
+      </Card>
 
       {/* Teachers Grid */}
       {filteredTeachers.length === 0 ? (
@@ -115,27 +119,28 @@ export function TeachersPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredTeachers.map((teacher) => {
-            // Assigned classes
             const assignedClasses = classes.filter((c) =>
               teacher.assignedClassIds?.includes(c.id) || c.teacherId === teacher.id
             );
 
             return (
-              <div
+              <Card
                 key={teacher.id}
-                className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs flex flex-col justify-between hover:shadow-md transition-all space-y-4"
+                className="p-5 shadow-xs flex flex-col justify-between hover:shadow-md transition-all space-y-4"
               >
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-bold text-base flex items-center justify-center shadow-xs">
-                        {teacher.name.charAt(0)}
-                      </div>
+                      <Avatar size="lg">
+                        <AvatarFallback className="bg-primary/10 text-primary font-bold text-base">
+                          {teacher.name.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
                       <div>
-                        <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                        <h3 className="text-base font-bold text-foreground">
                           {teacher.name}
                         </h3>
-                        <Badge size="sm" variant="purple">
+                        <Badge variant="secondary">
                           {teacher.department}
                         </Badge>
                       </div>
@@ -143,27 +148,27 @@ export function TeachersPage() {
                   </div>
 
                   {/* Qualification & Experience */}
-                  <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-400">
+                  <div className="space-y-1.5 text-xs text-muted-foreground">
                     <div className="flex items-start gap-2">
-                      <Award className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
-                      <span className="leading-tight font-medium text-slate-700 dark:text-slate-300">
+                      <Award className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                      <span className="leading-tight font-medium text-foreground">
                         {teacher.qualification || "Faculty Degree"}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Clock className="w-3.5 h-3.5 text-slate-400" />
+                      <Clock className="w-3.5 h-3.5" />
                       <span>{teacher.experienceYears} Years Academic Experience</span>
                     </div>
                   </div>
 
                   {/* Contact info */}
-                  <div className="rounded-xl bg-slate-50 dark:bg-slate-950/40 p-2.5 text-xs space-y-1 border border-slate-100 dark:border-slate-800">
-                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                      <Mail className="w-3.5 h-3.5 text-slate-400" />
+                  <div className="rounded-xl bg-muted/40 p-2.5 text-xs space-y-1 border border-border">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Mail className="w-3.5 h-3.5" />
                       <span className="truncate">{teacher.email}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                      <Phone className="w-3.5 h-3.5 text-slate-400" />
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Phone className="w-3.5 h-3.5" />
                       <span>{teacher.phone || "+1 (555) 000-0000"}</span>
                     </div>
                   </div>
@@ -171,36 +176,37 @@ export function TeachersPage() {
                   {/* Specialties */}
                   {teacher.subjectSpecialties && teacher.subjectSpecialties.length > 0 && (
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-1.5">
                         Subject Specialties
                       </span>
                       <div className="flex flex-wrap gap-1">
                         {teacher.subjectSpecialties.map((spec) => (
-                          <span
+                          <Badge
                             key={spec}
-                            className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                            variant="outline"
+                            className="text-[11px] font-medium"
                           >
                             {spec}
-                          </span>
+                          </Badge>
                         ))}
                       </div>
                     </div>
                   )}
 
                   {/* Assigned Classes */}
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
+                  {/* <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-1.5">
                       Assigned Class Cohorts
                     </span>
                     <div className="flex flex-wrap gap-1">
                       {assignedClasses.length === 0 ? (
-                        <span className="text-xs text-slate-400 italic">No assigned classes</span>
+                        <span className="text-xs text-muted-foreground italic">No assigned classes</span>
                       ) : (
                         assignedClasses.map((cls) => (
                           <button
                             key={cls.id}
                             onClick={() => navigateTo("class-details", cls.id)}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 hover:bg-blue-100 transition-colors border border-blue-200 dark:border-blue-900"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20 cursor-pointer"
                           >
                             <GraduationCap className="w-3 h-3" />
                             <span>{cls.name}</span>
@@ -208,24 +214,24 @@ export function TeachersPage() {
                         ))
                       )}
                     </div>
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* Actions Footer */}
-                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-1.5">
+                <div className="pt-3 border-t border-border flex justify-end gap-1.5">
                   <Button
                     variant="secondary"
                     size="sm"
-                    icon={Edit2}
                     onClick={() => setModalState({ isOpen: true, data: teacher })}
+                    className="gap-1"
                   >
-                    Edit Profile
+                    <Edit2 className="w-3.5 h-3.5" />
+                    <span>Edit Profile</span>
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border-rose-200 dark:border-rose-900"
-                    icon={Trash2}
+                    className="text-destructive hover:bg-destructive/10 gap-1 border-destructive/30"
                     onClick={() =>
                       setDeleteConfirm({
                         isOpen: true,
@@ -234,10 +240,11 @@ export function TeachersPage() {
                       })
                     }
                   >
-                    Delete
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete</span>
                   </Button>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>

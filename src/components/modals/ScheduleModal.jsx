@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button } from "../common/UIComponents";
+import { Modal } from "../common/UIComponents";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useSchool } from "../../context/SchoolContext";
 import { WEEKDAYS, SCHEDULE_TIME_SLOTS } from "../../data";
 
@@ -73,7 +75,7 @@ export function ScheduleModal({ isOpen, onClose, initialData = null, defaultClas
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Class Section *
             </label>
             <select
@@ -81,10 +83,10 @@ export function ScheduleModal({ isOpen, onClose, initialData = null, defaultClas
               required
               value={formData.classId}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground focus:ring-2 focus:ring-ring cursor-pointer"
             >
               {classes.map((c) => (
-                <option key={c.id} value={c.id}>
+                <option key={c.id} value={c.id} className="bg-background text-foreground">
                   {c.name} ({c.grade})
                 </option>
               ))}
@@ -92,7 +94,7 @@ export function ScheduleModal({ isOpen, onClose, initialData = null, defaultClas
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Subject Course *
             </label>
             <select
@@ -100,10 +102,10 @@ export function ScheduleModal({ isOpen, onClose, initialData = null, defaultClas
               required
               value={formData.subjectId}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground focus:ring-2 focus:ring-ring cursor-pointer"
             >
               {subjects.map((s) => (
-                <option key={s.id} value={s.id}>
+                <option key={s.id} value={s.id} className="bg-background text-foreground">
                   {s.name} ({s.code})
                 </option>
               ))}
@@ -113,17 +115,17 @@ export function ScheduleModal({ isOpen, onClose, initialData = null, defaultClas
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Day of the Week
             </label>
             <select
               name="day"
               value={formData.day}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground focus:ring-2 focus:ring-ring cursor-pointer"
             >
               {WEEKDAYS.map((day) => (
-                <option key={day} value={day}>
+                <option key={day} value={day} className="bg-background text-foreground">
                   {day}
                 </option>
               ))}
@@ -131,17 +133,17 @@ export function ScheduleModal({ isOpen, onClose, initialData = null, defaultClas
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Time Period
             </label>
             <select
               name="startTime"
               value={formData.startTime}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground focus:ring-2 focus:ring-ring cursor-pointer"
             >
               {SCHEDULE_TIME_SLOTS.map((slot) => (
-                <option key={slot} value={slot}>
+                <option key={slot} value={slot} className="bg-background text-foreground">
                   {slot}
                 </option>
               ))}
@@ -151,18 +153,18 @@ export function ScheduleModal({ isOpen, onClose, initialData = null, defaultClas
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Instructor / Teacher
             </label>
             <select
               name="teacherId"
               value={formData.teacherId}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground focus:ring-2 focus:ring-ring cursor-pointer"
             >
-              <option value="">-- No Teacher --</option>
+              <option value="" className="bg-background text-foreground">-- No Teacher --</option>
               {teachers.map((t) => (
-                <option key={t.id} value={t.id}>
+                <option key={t.id} value={t.id} className="bg-background text-foreground">
                   {t.name}
                 </option>
               ))}
@@ -170,44 +172,43 @@ export function ScheduleModal({ isOpen, onClose, initialData = null, defaultClas
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Room / Lab
             </label>
-            <input
+            <Input
               type="text"
               name="room"
               placeholder="e.g. Lab 202"
               value={formData.room}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Session Type
             </label>
             <select
               name="type"
               value={formData.type}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground focus:ring-2 focus:ring-ring cursor-pointer"
             >
-              <option value="Lecture">Lecture</option>
-              <option value="Lab Practical">Lab Practical</option>
-              <option value="Tutorial">Tutorial</option>
-              <option value="Seminar">Seminar</option>
-              <option value="Studio Workshop">Studio Workshop</option>
-              <option value="Physical Session">Physical Session</option>
+              <option value="Lecture" className="bg-background text-foreground">Lecture</option>
+              <option value="Lab Practical" className="bg-background text-foreground">Lab Practical</option>
+              <option value="Tutorial" className="bg-background text-foreground">Tutorial</option>
+              <option value="Seminar" className="bg-background text-foreground">Seminar</option>
+              <option value="Studio Workshop" className="bg-background text-foreground">Studio Workshop</option>
+              <option value="Physical Session" className="bg-background text-foreground">Physical Session</option>
             </select>
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
-          <Button variant="secondary" onClick={onClose}>
+        <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-border">
+          <Button variant="outline" onClick={onClose} size="sm">
             Cancel
           </Button>
-          <Button type="submit" variant="primary">
+          <Button type="submit" variant="default" size="sm">
             {isEditing ? "Save Slot" : "Add Schedule"}
           </Button>
         </div>

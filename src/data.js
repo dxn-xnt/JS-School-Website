@@ -8,7 +8,7 @@
  * 1. VARIABLES: const, let, var
  * 2. TYPES OF VARIABLES:
  *    - String: "Grade 10-A", "Sarah Jenkins"
- *    - Number: 30 (capacity), 92.5 (attendanceRate), 4 (credits)
+ *    - Number: 30 (capacity), 4 (credits), 12 (experienceYears)
  *    - Boolean: true / false (isArchived, isActive)
  *    - Null: null (unassigned teacher or placeholder)
  *    - Undefined: undefined (demonstrated in helper/optional fields)
@@ -17,7 +17,7 @@
  * 3. OBJECTS: Class, Student, Teacher, Subject, Schedule entities
  * 4. TYPES OF OBJECTS:
  *    - Object literals: { id: "std-1", ... }
- *    - Nested objects: contact: { phone: "...", guardianName: "..." }
+ *    - Nested objects: contact: { phone: "...", address: "..." }
  *    - Arrays of objects: initialClasses, initialStudents, etc.
  * 5. ARRAYS: classes, students, teachers, subjects, schedules
  * 6. TYPES OF ARRAYS:
@@ -247,11 +247,8 @@ export const initialStudents = [
     grade: "Grade 10",
     gender: "Male",
     status: "Active",
-    attendanceRate: 96.5,
-    gpa: 3.88,
     contact: {
       phone: "+1 (555) 111-2233",
-      guardianName: "Thomas & Rebecca Hayes",
       address: "742 Evergreen Terrace, Springfield"
     },
     enrolledClassIds: ["cls-1"]
@@ -263,11 +260,8 @@ export const initialStudents = [
     grade: "Grade 10",
     gender: "Female",
     status: "Active",
-    attendanceRate: 98.2,
-    gpa: 3.95,
     contact: {
       phone: "+1 (555) 222-3344",
-      guardianName: "Carlos Martinez",
       address: "128 Oakridge Lane, Highpoint"
     },
     enrolledClassIds: ["cls-1"]
@@ -279,11 +273,8 @@ export const initialStudents = [
     grade: "Grade 10",
     gender: "Male",
     status: "Active",
-    attendanceRate: 91.0,
-    gpa: 3.45,
     contact: {
       phone: "+1 (555) 333-4455",
-      guardianName: "Karen Wright",
       address: "45 Pinecrest Blvd, Highpoint"
     },
     enrolledClassIds: ["cls-1"]
@@ -295,11 +286,8 @@ export const initialStudents = [
     grade: "Grade 9",
     gender: "Female",
     status: "Active",
-    attendanceRate: 99.1,
-    gpa: 4.00,
     contact: {
       phone: "+1 (555) 444-5566",
-      guardianName: "Min-Jun Kim",
       address: "89 Cedar Ave, Riverdale"
     },
     enrolledClassIds: ["cls-2"]
@@ -311,11 +299,8 @@ export const initialStudents = [
     grade: "Grade 9",
     gender: "Male",
     status: "Active",
-    attendanceRate: 94.0,
-    gpa: 3.60,
     contact: {
       phone: "+1 (555) 555-6677",
-      guardianName: "Sean O'Connor",
       address: "12 Maple Court, Riverdale"
     },
     enrolledClassIds: ["cls-2"]
@@ -327,11 +312,8 @@ export const initialStudents = [
     grade: "Grade 9",
     gender: "Female",
     status: "Active",
-    attendanceRate: 95.8,
-    gpa: 3.75,
     contact: {
       phone: "+1 (555) 666-7788",
-      guardianName: "Helen Watson",
       address: "31 Willow Drive, Riverdale"
     },
     enrolledClassIds: ["cls-2"]
@@ -343,11 +325,8 @@ export const initialStudents = [
     grade: "Grade 11",
     gender: "Male",
     status: "Active",
-    attendanceRate: 92.4,
-    gpa: 3.52,
     contact: {
       phone: "+1 (555) 777-8899",
-      guardianName: "Elena Rivera",
       address: "65 Magnolia Way, Sunnyvale"
     },
     enrolledClassIds: ["cls-3"]
@@ -359,11 +338,8 @@ export const initialStudents = [
     grade: "Grade 11",
     gender: "Female",
     status: "Active",
-    attendanceRate: 97.6,
-    gpa: 3.91,
     contact: {
       phone: "+1 (555) 888-9900",
-      guardianName: "Rajesh & Anita Patel",
       address: "201 Elm Street, Sunnyvale"
     },
     enrolledClassIds: ["cls-3"]
@@ -375,11 +351,8 @@ export const initialStudents = [
     grade: "Grade 11",
     gender: "Male",
     status: "Active",
-    attendanceRate: 88.5,
-    gpa: 3.20,
     contact: {
       phone: "+1 (555) 999-0011",
-      guardianName: "Gregory Brooks",
       address: "14 Birch Lane, Sunnyvale"
     },
     enrolledClassIds: ["cls-3"]
@@ -391,11 +364,8 @@ export const initialStudents = [
     grade: "Grade 10",
     gender: "Female",
     status: "Active",
-    attendanceRate: 96.0,
-    gpa: 3.82,
     contact: {
       phone: "+1 (555) 123-4567",
-      guardianName: "Dorothy Johnson",
       address: "53 Aspen Street, Highpoint"
     },
     enrolledClassIds: ["cls-1"]
@@ -407,11 +377,8 @@ export const initialStudents = [
     grade: "Grade 12",
     gender: "Male",
     status: "Active",
-    attendanceRate: 94.7,
-    gpa: 3.68,
     contact: {
       phone: "+1 (555) 234-5678",
-      guardianName: "Walter Scott",
       address: "77 Redwood Road, Westwood"
     },
     enrolledClassIds: ["cls-4"]
@@ -423,11 +390,8 @@ export const initialStudents = [
     grade: "Grade 12",
     gender: "Female",
     status: "Active",
-    attendanceRate: 98.9,
-    gpa: 3.97,
     contact: {
       phone: "+1 (555) 345-6789",
-      guardianName: "Patricia Bennett",
       address: "109 Laurel Crest, Westwood"
     },
     enrolledClassIds: ["cls-4"]
@@ -439,11 +403,8 @@ export const initialStudents = [
     grade: "Grade 12",
     gender: "Male",
     status: "Active",
-    attendanceRate: 90.2,
-    gpa: 3.35,
     contact: {
       phone: "+1 (555) 456-7890",
-      guardianName: "James Foster",
       address: "240 Cypress Plaza, Westwood"
     },
     enrolledClassIds: ["cls-4"]
@@ -455,11 +416,8 @@ export const initialStudents = [
     grade: "Grade 11",
     gender: "Female",
     status: "Active",
-    attendanceRate: 95.3,
-    gpa: 3.79,
     contact: {
       phone: "+1 (555) 567-8901",
-      guardianName: "Simon Taylor",
       address: "18 Hickory Circle, Sunnyvale"
     },
     enrolledClassIds: ["cls-5"]
@@ -471,11 +429,8 @@ export const initialStudents = [
     grade: "Grade 11",
     gender: "Male",
     status: "Active",
-    attendanceRate: 93.1,
-    gpa: 3.55,
     contact: {
       phone: "+1 (555) 678-9012",
-      guardianName: "Clara Campbell",
       address: "302 Sycamore Way, Sunnyvale"
     },
     enrolledClassIds: ["cls-5"]
@@ -487,11 +442,8 @@ export const initialStudents = [
     grade: "Grade 12",
     gender: "Female",
     status: "Active",
-    attendanceRate: 97.4,
-    gpa: 3.86,
     contact: {
       phone: "+1 (555) 789-0123",
-      guardianName: "Mateo Garcia",
       address: "411 Alder Street, Westwood"
     },
     enrolledClassIds: ["cls-6"]
@@ -503,11 +455,8 @@ export const initialStudents = [
     grade: "Grade 12",
     gender: "Male",
     status: "Active",
-    attendanceRate: 89.9,
-    gpa: 3.15,
     contact: {
       phone: "+1 (555) 890-1234",
-      guardianName: "Victoria Robinson",
       address: "88 Chestnut Ave, Westwood"
     },
     enrolledClassIds: ["cls-6"]
@@ -519,11 +468,8 @@ export const initialStudents = [
     grade: "Grade 12",
     gender: "Female",
     status: "Active",
-    attendanceRate: 99.4,
-    gpa: 4.00,
     contact: {
       phone: "+1 (555) 901-2345",
-      guardianName: "Wei & Lin Zhang",
       address: "512 Walnut Row, Westwood"
     },
     enrolledClassIds: ["cls-6"]
@@ -541,7 +487,7 @@ export const initialClasses = [
     grade: "Grade 10",
     room: "Science Wing 301",
     capacity: 25,
-    teacherId: "tch-1", // Dr. Eleanor Vance
+    teacherId: "tch-1",
     subjectIds: ["sbj-1", "sbj-2", "sbj-4"],
     studentIds: ["std-1", "std-2", "std-3", "std-10"],
     isArchived: false,
@@ -559,7 +505,7 @@ export const initialClasses = [
     grade: "Grade 9",
     room: "Main Hall 104",
     capacity: 28,
-    teacherId: "tch-3", // Sarah Jenkins
+    teacherId: "tch-3",
     subjectIds: ["sbj-3", "sbj-2", "sbj-8"],
     studentIds: ["std-4", "std-5", "std-6"],
     isArchived: false,
@@ -577,7 +523,7 @@ export const initialClasses = [
     grade: "Grade 11",
     room: "Tech Lab 202",
     capacity: 24,
-    teacherId: "tch-4", // David Zhang
+    teacherId: "tch-4",
     subjectIds: ["sbj-4", "sbj-1", "sbj-9"],
     studentIds: ["std-7", "std-8", "std-9"],
     isArchived: false,
@@ -595,7 +541,7 @@ export const initialClasses = [
     grade: "Grade 12",
     room: "Humanities Wing 112",
     capacity: 22,
-    teacherId: "tch-3", // Sarah Jenkins
+    teacherId: "tch-3",
     subjectIds: ["sbj-3", "sbj-6", "sbj-8"],
     studentIds: ["std-11", "std-12", "std-13"],
     isArchived: false,
@@ -613,7 +559,7 @@ export const initialClasses = [
     grade: "Grade 11",
     room: "Lab Block 205",
     capacity: 26,
-    teacherId: "tch-5", // Dr. Amanda Chen
+    teacherId: "tch-5",
     subjectIds: ["sbj-5", "sbj-7", "sbj-1"],
     studentIds: ["std-14", "std-15"],
     isArchived: false,
@@ -631,7 +577,7 @@ export const initialClasses = [
     grade: "Grade 12",
     room: "West Hall 210",
     capacity: 20,
-    teacherId: "tch-6", // Robert Morales
+    teacherId: "tch-6",
     subjectIds: ["sbj-6", "sbj-7", "sbj-9"],
     studentIds: ["std-16", "std-17", "std-18"],
     isArchived: false,
@@ -810,12 +756,10 @@ export const TIMETABLE_GRID_MATRIX = [
 
 // Function Declaration: Calculate school metrics
 export function calculateSchoolSummary(classes, students, teachers, subjects, schedules) {
-  // Concept 1: let vs const
   let activeClassesCount = 0;
   let archivedClassesCount = 0;
   let totalStudentCapacity = 0;
 
-  // Concept 8: Callback function inside forEach
   classes.forEach(function (cls) {
     if (cls.isArchived) {
       archivedClassesCount += 1;
@@ -826,12 +770,6 @@ export function calculateSchoolSummary(classes, students, teachers, subjects, sc
   });
 
   const totalEnrolledStudents = students.length;
-  // Compute average attendance rate using reduce (Callback)
-  const averageAttendance = (
-    students.reduce((acc, curr) => acc + (curr.attendanceRate || 0), 0) / (totalEnrolledStudents || 1)
-  ).toFixed(1);
-
-  // Compute average class occupancy rate
   const occupancyPercentage = totalStudentCapacity > 0
     ? Math.round((totalEnrolledStudents / totalStudentCapacity) * 100)
     : 0;
@@ -845,7 +783,6 @@ export function calculateSchoolSummary(classes, students, teachers, subjects, sc
     totalSubjects: subjects.length,
     totalSchedules: schedules.length,
     totalStudentCapacity,
-    averageAttendance: Number(averageAttendance),
     occupancyPercentage
   };
 }
@@ -863,7 +800,6 @@ export const matchesQuery = (targetStr, queryStr) => {
 
 // Higher-Order Function: Creates a filter function for given search query and keys
 export function createEntityFilter(searchQuery, keysToMatch) {
-  // Returns a callback function (Higher-Order Function pattern)
   return function (entity) {
     if (!searchQuery || searchQuery.trim() === "") return true;
     const query = searchQuery.toLowerCase().trim();

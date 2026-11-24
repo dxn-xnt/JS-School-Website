@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button } from "../common/UIComponents";
+import { Modal } from "../common/UIComponents";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useSchool } from "../../context/SchoolContext";
 import { DEPARTMENTS } from "../../data";
 
@@ -73,49 +75,48 @@ export function SubjectModal({ isOpen, onClose, initialData = null }) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Subject Name *
             </label>
-            <input
+            <Input
               type="text"
               name="name"
               required
               placeholder="e.g. Advanced Mathematics"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Course Code *
             </label>
-            <input
+            <Input
               type="text"
               name="code"
               required
               placeholder="e.g. MATH-101"
               value={formData.code}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
+              className="uppercase"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Department
             </label>
             <select
               name="department"
               value={formData.department}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground focus:ring-2 focus:ring-ring cursor-pointer"
             >
               {DEPARTMENTS.map((dept) => (
-                <option key={dept} value={dept}>
+                <option key={dept} value={dept} className="bg-background text-foreground">
                   {dept}
                 </option>
               ))}
@@ -123,38 +124,36 @@ export function SubjectModal({ isOpen, onClose, initialData = null }) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Credit Units
             </label>
-            <input
+            <Input
               type="number"
               name="credits"
               min="1"
               max="10"
               value={formData.credits}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Weekly Hours
             </label>
-            <input
+            <Input
               type="number"
               name="weeklyHours"
               min="1"
               max="15"
               value={formData.weeklyHours}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-xs font-semibold text-foreground mb-1.5">
             Syllabus & Course Description
           </label>
           <textarea
@@ -163,15 +162,15 @@ export function SubjectModal({ isOpen, onClose, initialData = null }) {
             placeholder="Brief overview of course topics, prerequisites, and learning outcomes..."
             value={formData.description}
             onChange={handleChange}
-            className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-lg border border-input bg-transparent p-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring outline-none"
           />
         </div>
 
-        <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
-          <Button variant="secondary" onClick={onClose}>
+        <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-border">
+          <Button variant="outline" onClick={onClose} size="sm">
             Cancel
           </Button>
-          <Button type="submit" variant="primary">
+          <Button type="submit" variant="default" size="sm">
             {isEditing ? "Save Subject" : "Create Subject"}
           </Button>
         </div>

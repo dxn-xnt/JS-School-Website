@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from "react";
 import { useSchool } from "../context/SchoolContext";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
-  Button,
-  Badge,
   SearchInput,
   SelectFilter,
   EmptyState,
@@ -15,8 +16,7 @@ import {
   Trash2,
   GraduationCap,
   Clock,
-  Award,
-  Layers
+  Award
 } from "lucide-react";
 import { SubjectModal } from "../components/modals/SubjectModal";
 import { DEPARTMENTS } from "../data";
@@ -61,43 +61,46 @@ export function SubjectsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <BookOpen className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+          <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <BookOpen className="w-6 h-6 text-primary" />
             Subject & Curriculum Catalog
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             Configure academic courses, credits, weekly hours, and department curricula.
           </p>
         </div>
 
         <Button
-          variant="primary"
-          icon={Plus}
+          variant="default"
           onClick={() => setModalState({ isOpen: true, data: null })}
+          className="gap-1.5"
         >
-          Add Course Subject
+          <Plus className="w-4 h-4" />
+          <span>Add Course Subject</span>
         </Button>
       </div>
 
       {/* Filter and Search */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
-        <div className="w-full sm:w-80">
-          <SearchInput
-            value={localSearch}
-            onChange={setLocalSearch}
-            placeholder="Search subjects by title or code..."
-          />
-        </div>
+      <Card className="p-4 shadow-xs">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div className="w-full sm:w-80">
+            <SearchInput
+              value={localSearch}
+              onChange={setLocalSearch}
+              placeholder="Search subjects by title or code..."
+            />
+          </div>
 
-        <div className="w-full sm:w-56">
-          <SelectFilter
-            value={deptFilter}
-            onChange={setDeptFilter}
-            label="All Departments"
-            options={DEPARTMENTS}
-          />
+          <div className="w-full sm:w-56">
+            <SelectFilter
+              value={deptFilter}
+              onChange={setDeptFilter}
+              label="All Departments"
+              options={DEPARTMENTS}
+            />
+          </div>
         </div>
-      </div>
+      </Card>
 
       {/* Subject Cards */}
       {filteredSubjects.length === 0 ? (
@@ -116,54 +119,54 @@ export function SubjectsPage() {
             );
 
             return (
-              <div
+              <Card
                 key={subject.id}
-                className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs flex flex-col justify-between hover:shadow-md transition-all space-y-4"
+                className="p-5 shadow-xs flex flex-col justify-between hover:shadow-md transition-all space-y-4"
               >
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-2">
-                    <Badge size="sm" variant="purple">
+                    <Badge variant="secondary">
                       {subject.code}
                     </Badge>
-                    <Badge size="sm" variant="default">
+                    <Badge variant="outline">
                       {subject.department}
                     </Badge>
                   </div>
 
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  <h3 className="text-base font-bold text-foreground">
                     {subject.name}
                   </h3>
 
-                  <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed">
+                  <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
                     {subject.description || "Course curriculum and learning objectives."}
                   </p>
 
                   {/* Credits & Hours pill */}
-                  <div className="grid grid-cols-2 gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    <div className="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800">
+                  <div className="grid grid-cols-2 gap-2 text-xs font-semibold text-foreground">
+                    <div className="flex items-center gap-1.5 p-2 rounded-xl bg-muted/40 border border-border">
                       <Award className="w-4 h-4 text-amber-500" />
                       <span>{subject.credits} Credit Units</span>
                     </div>
-                    <div className="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800">
-                      <Clock className="w-4 h-4 text-blue-500" />
+                    <div className="flex items-center gap-1.5 p-2 rounded-xl bg-muted/40 border border-border">
+                      <Clock className="w-4 h-4 text-primary" />
                       <span>{subject.weeklyHours} Hrs / Week</span>
                     </div>
                   </div>
 
                   {/* Taught in Classes */}
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-1.5">
                       Taught in Classes ({assignedClasses.length})
                     </span>
                     <div className="flex flex-wrap gap-1">
                       {assignedClasses.length === 0 ? (
-                        <span className="text-xs text-slate-400 italic">No assigned classes</span>
+                        <span className="text-xs text-muted-foreground italic">No assigned classes</span>
                       ) : (
                         assignedClasses.map((cls) => (
                           <button
                             key={cls.id}
                             onClick={() => navigateTo("class-details", cls.id)}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 hover:bg-blue-100 transition-colors border border-blue-200 dark:border-blue-900"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20 cursor-pointer"
                           >
                             <GraduationCap className="w-3 h-3" />
                             <span>{cls.name}</span>
@@ -175,20 +178,20 @@ export function SubjectsPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-1.5">
+                <div className="pt-3 border-t border-border flex justify-end gap-1.5">
                   <Button
                     variant="secondary"
                     size="sm"
-                    icon={Edit2}
                     onClick={() => setModalState({ isOpen: true, data: subject })}
+                    className="gap-1"
                   >
-                    Edit Course
+                    <Edit2 className="w-3.5 h-3.5" />
+                    <span>Edit Course</span>
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 border-rose-200 dark:border-rose-900"
-                    icon={Trash2}
+                    className="text-destructive hover:bg-destructive/10 gap-1 border-destructive/30"
                     onClick={() =>
                       setDeleteConfirm({
                         isOpen: true,
@@ -197,10 +200,11 @@ export function SubjectsPage() {
                       })
                     }
                   >
-                    Delete
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete</span>
                   </Button>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>

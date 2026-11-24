@@ -10,40 +10,11 @@ import {
   createEntityFilter
 } from "../data";
 
-/**
- * ============================================================================
- * JAVASCRIPT CONCEPTS DEMONSTRATION IN STATE MANAGEMENT (SchoolContext.jsx)
- * ============================================================================
- * 1. VARIABLES: const for context and handlers, let for mutable computations
- * 2. TYPES OF VARIABLES: String (IDs, names), Number (counts, capacities),
- *    Boolean (isArchived, open states), Null (unassigned teacher), Undefined
- * 3. OBJECTS: Class, Student, Teacher, Subject, Schedule data updates
- * 4. TYPES OF OBJECTS: Nested objects updated immutably with spread operator {...obj}
- * 5. ARRAYS: State arrays of entities
- * 6. TYPES OF ARRAYS: Array of objects, nested arrays (enrolledClassIds, subjectIds)
- * 7. FUNCTIONS: add, edit, delete, archive, assign, remove operations
- * 8. TYPES OF FUNCTIONS: Function declarations, arrow functions, higher-order functions
- * ============================================================================
- */
-
-// 1. VARIABLES: Context constant declaration
 const SchoolContext = createContext(null);
 
-const STORAGE_KEY = "evergreen_school_admin_v1";
-
-// 8. TYPES OF FUNCTIONS: Higher-Order Function for action notification
-function withNotification(actionFn, successMessage, showToast) {
-  return function (...args) {
-    const result = actionFn(...args);
-    if (showToast && successMessage) {
-      showToast(successMessage, "success");
-    }
-    return result;
-  };
-}
+const STORAGE_KEY = "evergreen_school_admin_v2";
 
 export function SchoolProvider({ children }) {
-  // 1 & 2. VARIABLES & TYPES: useState hooks with Array of Objects
   const [classes, setClasses] = useState(() => {
     const saved = localStorage.getItem(`${STORAGE_KEY}_classes`);
     return saved ? JSON.parse(saved) : initialClasses;
@@ -69,13 +40,11 @@ export function SchoolProvider({ children }) {
     return saved ? JSON.parse(saved) : initialSchedules;
   });
 
-  // Navigation state (String and Null types)
   const [activePage, setActivePage] = useState("dashboard");
   const [selectedClassId, setSelectedClassId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [toast, setToast] = useState(null);
 
-  // Sync to localStorage
   useEffect(() => {
     localStorage.setItem(`${STORAGE_KEY}_classes`, JSON.stringify(classes));
     localStorage.setItem(`${STORAGE_KEY}_students`, JSON.stringify(students));
@@ -84,7 +53,6 @@ export function SchoolProvider({ children }) {
     localStorage.setItem(`${STORAGE_KEY}_schedules`, JSON.stringify(schedules));
   }, [classes, students, teachers, subjects, schedules]);
 
-  // Toast notification helper
   const showToast = (message, type = "success") => {
     const toastId = generateId("toast");
     setToast({ id: toastId, message, type });
@@ -93,9 +61,6 @@ export function SchoolProvider({ children }) {
     }, 3500);
   };
 
-  // --------------------------------------------------------------------------
-  // 7. FUNCTIONS: NAVIGATION & LOOKUP HELPERS
-  // --------------------------------------------------------------------------
   const navigateTo = (page, classId = null) => {
     setActivePage(page);
     if (classId !== null) {
@@ -123,9 +88,6 @@ export function SchoolProvider({ children }) {
     return schedules.filter((sch) => sch.classId === classId);
   };
 
-  // --------------------------------------------------------------------------
-  // 7. FUNCTIONS: CLASS OPERATIONS (Add, Edit, Archive, Delete)
-  // --------------------------------------------------------------------------
   const addClass = (classData) => {
     const newClass = {
       id: generateId("cls"),
@@ -134,10 +96,10 @@ export function SchoolProvider({ children }) {
       grade: classData.grade,
       room: classData.room || "Room TBA",
       capacity: Number(classData.capacity) || 25,
-      teacherId: classData.teacherId || null, // Concept 2: Null variable type
+      teacherId: classData.teacherId || null,
       subjectIds: classData.subjectIds || [],
       studentIds: classData.studentIds || [],
-      isArchived: false, // Concept 2: Boolean variable type
+      isArchived: false,
       description: classData.description || "Class overview and description.",
       metadata: {
         semester: classData.semester || "Spring 2026",
@@ -148,7 +110,6 @@ export function SchoolProvider({ children }) {
 
     setClasses((prev) => [newClass, ...prev]);
 
-    // If teacher was assigned, update teacher assignedClassIds
     if (newClass.teacherId) {
       setTeachers((prev) =>
         prev.map((t) =>
@@ -185,7 +146,6 @@ export function SchoolProvider({ children }) {
       })
     );
 
-    // Reconcile teacher assignments if lead teacher changed
     if (newTeacherId !== undefined && oldTeacherId !== newTeacherId) {
       setTeachers((prev) =>
         prev.map((t) => {
@@ -229,29 +189,21 @@ export function SchoolProvider({ children }) {
     const clsToDelete = getClassById(id);
     const className = clsToDelete ? clsToDelete.name : "Class";
 
-    // 1. Remove class from classes array
     setClasses((prev) => prev.filter((c) => c.id !== id));
-
-    // 2. Remove class from enrolled students
     setStudents((prev) =>
       prev.map((st) => ({
         ...st,
         enrolledClassIds: st.enrolledClassIds.filter((cId) => cId !== id)
       }))
     );
-
-    // 3. Remove class from teachers
     setTeachers((prev) =>
       prev.map((t) => ({
         ...t,
         assignedClassIds: t.assignedClassIds.filter((cId) => cId !== id)
       }))
     );
-
-    // 4. Remove class schedules
     setSchedules((prev) => prev.filter((sch) => sch.classId !== id));
 
-    // If currently viewing deleted class, redirect to classes list
     if (selectedClassId === id) {
       setSelectedClassId(null);
       setActivePage("classes");
@@ -260,9 +212,6 @@ export function SchoolProvider({ children }) {
     showToast(`Class "${className}" deleted successfully.`, "info");
   };
 
-  // --------------------------------------------------------------------------
-  // 7. FUNCTIONS: STUDENT ASSIGNMENTS & CRUD
-  // --------------------------------------------------------------------------
   const assignStudentToClass = (classId, studentId) => {
     const cls = getClassById(classId);
     const student = getStudentById(studentId);
@@ -272,14 +221,12 @@ export function SchoolProvider({ children }) {
       return;
     }
 
-    // Check capacity limit
     const currentEnrolled = getEnrolledStudentsForClass(classId).length;
     if (currentEnrolled >= cls.capacity) {
       showToast(`Cannot enroll: ${cls.name} has reached maximum capacity (${cls.capacity}).`, "error");
       return;
     }
 
-    // Add to class studentIds
     setClasses((prev) =>
       prev.map((c) =>
         c.id === classId && !c.studentIds.includes(studentId)
@@ -288,7 +235,6 @@ export function SchoolProvider({ children }) {
       )
     );
 
-    // Add to student enrolledClassIds
     setStudents((prev) =>
       prev.map((st) =>
         st.id === studentId && !st.enrolledClassIds.includes(classId)
@@ -329,13 +275,10 @@ export function SchoolProvider({ children }) {
       name: studentData.name.trim(),
       email: studentData.email || `${studentData.name.toLowerCase().replace(/\s+/g, ".")}@student.evergreen.edu`,
       grade: studentData.grade || "Grade 10",
-      gender: studentData.gender || "Not Specified",
+      gender: studentData.gender || "Male",
       status: studentData.status || "Active",
-      attendanceRate: Number(studentData.attendanceRate) || 95.0,
-      gpa: Number(studentData.gpa) || 3.5,
       contact: {
         phone: studentData.phone || "+1 (555) 000-0000",
-        guardianName: studentData.guardianName || "Guardian",
         address: studentData.address || "Main City"
       },
       enrolledClassIds: studentData.enrolledClassIds || []
@@ -343,7 +286,6 @@ export function SchoolProvider({ children }) {
 
     setStudents((prev) => [newStudent, ...prev]);
 
-    // Update classes with newly enrolled student
     if (newStudent.enrolledClassIds.length > 0) {
       setClasses((prev) =>
         prev.map((c) =>
@@ -365,8 +307,6 @@ export function SchoolProvider({ children }) {
           return {
             ...st,
             ...updatedFields,
-            attendanceRate: Number(updatedFields.attendanceRate) || st.attendanceRate,
-            gpa: Number(updatedFields.gpa) || st.gpa,
             contact: {
               ...st.contact,
               ...(updatedFields.contact || {})
@@ -391,9 +331,6 @@ export function SchoolProvider({ children }) {
     showToast(`Student "${student?.name || "Record"}" deleted.`, "info");
   };
 
-  // --------------------------------------------------------------------------
-  // 7. FUNCTIONS: TEACHER ASSIGNMENTS & CRUD
-  // --------------------------------------------------------------------------
   const assignTeacherToClass = (classId, teacherId) => {
     const cls = getClassById(classId);
     const teacher = getTeacherById(teacherId);
@@ -402,12 +339,10 @@ export function SchoolProvider({ children }) {
 
     const oldTeacherId = cls.teacherId;
 
-    // Update class lead teacher
     setClasses((prev) =>
       prev.map((c) => (c.id === classId ? { ...c, teacherId: teacherId || null } : c))
     );
 
-    // Update teachers assignedClassIds
     setTeachers((prev) =>
       prev.map((t) => {
         if (t.id === oldTeacherId) {
@@ -475,20 +410,15 @@ export function SchoolProvider({ children }) {
   const deleteTeacher = (id) => {
     const teacher = getTeacherById(id);
     setTeachers((prev) => prev.filter((t) => t.id !== id));
-    // Clear from classes where lead teacher
     setClasses((prev) =>
       prev.map((c) => (c.teacherId === id ? { ...c, teacherId: null } : c))
     );
-    // Clear from schedules
     setSchedules((prev) =>
       prev.map((sch) => (sch.teacherId === id ? { ...sch, teacherId: null } : sch))
     );
     showToast(`Teacher "${teacher?.name || "Record"}" removed.`, "info");
   };
 
-  // --------------------------------------------------------------------------
-  // 7. FUNCTIONS: SUBJECT ASSIGNMENTS & CRUD
-  // --------------------------------------------------------------------------
   const assignSubjectToClass = (classId, subjectId) => {
     const cls = getClassById(classId);
     const subject = getSubjectById(subjectId);
@@ -520,7 +450,6 @@ export function SchoolProvider({ children }) {
       )
     );
 
-    // Also remove any schedule slots for this subject in this class
     setSchedules((prev) =>
       prev.filter((sch) => !(sch.classId === classId && sch.subjectId === subjectId))
     );
@@ -565,21 +494,16 @@ export function SchoolProvider({ children }) {
   const deleteSubject = (id) => {
     const subject = getSubjectById(id);
     setSubjects((prev) => prev.filter((s) => s.id !== id));
-    // Remove from all classes
     setClasses((prev) =>
       prev.map((c) => ({
         ...c,
         subjectIds: c.subjectIds.filter((sId) => sId !== id)
       }))
     );
-    // Remove from schedules
     setSchedules((prev) => prev.filter((sch) => sch.subjectId !== id));
     showToast(`Subject "${subject?.name || "Record"}" deleted.`, "info");
   };
 
-  // --------------------------------------------------------------------------
-  // 7. FUNCTIONS: SCHEDULE CRUD
-  // --------------------------------------------------------------------------
   const addSchedule = (scheduleData) => {
     const newSchedule = {
       id: generateId("sch"),
@@ -592,7 +516,6 @@ export function SchoolProvider({ children }) {
       type: scheduleData.type || "Lecture"
     };
 
-    // Ensure subject is in class subjectIds
     const targetClass = getClassById(newSchedule.classId);
     if (targetClass && !targetClass.subjectIds.includes(newSchedule.subjectId)) {
       assignSubjectToClass(newSchedule.classId, newSchedule.subjectId);
@@ -615,9 +538,6 @@ export function SchoolProvider({ children }) {
     showToast("Schedule slot removed.", "info");
   };
 
-  // --------------------------------------------------------------------------
-  // RESET DATA HELPER
-  // --------------------------------------------------------------------------
   const resetToDefaultData = () => {
     localStorage.removeItem(`${STORAGE_KEY}_classes`);
     localStorage.removeItem(`${STORAGE_KEY}_students`);
@@ -634,13 +554,11 @@ export function SchoolProvider({ children }) {
     showToast("All records reset to initial static school data!", "info");
   };
 
-  // 8. Dynamic summary metrics using Higher-Order / callback function
   const summaryStats = calculateSchoolSummary(classes, students, teachers, subjects, schedules);
 
   return (
     <SchoolContext.Provider
       value={{
-        // State
         classes,
         students,
         teachers,
@@ -653,12 +571,10 @@ export function SchoolProvider({ children }) {
         toast,
         summaryStats,
 
-        // Navigation
         navigateTo,
         setSelectedClassId,
         showToast,
 
-        // Lookup Helpers
         getClassById,
         getTeacherById,
         getSubjectById,
@@ -667,7 +583,6 @@ export function SchoolProvider({ children }) {
         getSubjectsForClass,
         getSchedulesForClass,
 
-        // CRUD & Operations
         addClass,
         editClass,
         toggleArchiveClass,
@@ -702,7 +617,6 @@ export function SchoolProvider({ children }) {
   );
 }
 
-// Custom hook to consume SchoolContext
 export function useSchool() {
   const context = useContext(SchoolContext);
   if (!context) {

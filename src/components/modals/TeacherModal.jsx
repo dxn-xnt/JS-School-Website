@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button } from "../common/UIComponents";
+import { Modal } from "../common/UIComponents";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 import { useSchool } from "../../context/SchoolContext";
 import { DEPARTMENTS } from "../../data";
 
@@ -86,135 +95,135 @@ export function TeacherModal({ isOpen, onClose, initialData = null }) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Teacher Name *
             </label>
-            <input
+            <Input
               type="text"
               name="name"
               required
               placeholder="e.g. Dr. Eleanor Vance"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Email Address
             </label>
-            <input
+            <Input
               type="email"
               name="email"
               placeholder="e.g. e.vance@evergreen.edu"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Academic Department
             </label>
-            <select
-              name="department"
+            <Select
               value={formData.department}
-              onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onValueChange={(val) => val && setFormData((prev) => ({ ...prev, department: val }))}
             >
-              {DEPARTMENTS.map((dept) => (
-                <option key={dept} value={dept}>
-                  {dept}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full h-8">
+                <SelectValue placeholder="Select department" />
+              </SelectTrigger>
+              <SelectContent>
+                {DEPARTMENTS.map((dept) => (
+                  <SelectItem key={dept} value={dept}>
+                    {dept}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Years of Experience
             </label>
-            <input
+            <Input
               type="number"
               name="experienceYears"
               min="0"
               max="50"
               value={formData.experienceYears}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-xs font-semibold text-foreground mb-1.5">
             Academic Qualification & Degree
           </label>
-          <input
+          <Input
             type="text"
             name="qualification"
             placeholder="e.g. Ph.D. in Applied Mathematics (MIT)"
             value={formData.qualification}
             onChange={handleChange}
-            className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-xs font-semibold text-foreground mb-1.5">
             Subject Specialties (comma-separated)
           </label>
-          <input
+          <Input
             type="text"
             name="specialtiesString"
             placeholder="e.g. Advanced Calculus, Linear Algebra, Geometry"
             value={formData.specialtiesString}
             onChange={handleChange}
-            className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Contact Phone
             </label>
-            <input
+            <Input
               type="text"
               name="phone"
               placeholder="+1 (555) 000-0000"
               value={formData.phone}
               onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Faculty Status
             </label>
-            <select
-              name="status"
+            <Select
               value={formData.status}
-              onChange={handleChange}
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onValueChange={(val) => val && setFormData((prev) => ({ ...prev, status: val }))}
             >
-              <option value="Active">Active Faculty</option>
-              <option value="Sabbatical">On Sabbatical</option>
-              <option value="Inactive">Inactive</option>
-            </select>
+              <SelectTrigger className="w-full h-8">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Active">Active Faculty</SelectItem>
+                <SelectItem value="Sabbatical">On Sabbatical</SelectItem>
+                <SelectItem value="Inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
-          <Button variant="secondary" onClick={onClose}>
+        <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-border">
+          <Button variant="outline" onClick={onClose} size="sm">
             Cancel
           </Button>
-          <Button type="submit" variant="primary">
+          <Button type="submit" variant="default" size="sm">
             {isEditing ? "Save Faculty Info" : "Add Teacher"}
           </Button>
         </div>

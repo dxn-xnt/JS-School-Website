@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { SchoolProvider, useSchool } from "./context/SchoolContext";
 import { Sidebar } from "./components/layout/Sidebar";
 import { Header } from "./components/layout/Header";
@@ -16,8 +16,22 @@ import "./App.css";
 function AppContent() {
   const { activePage, toast } = useSchool();
 
+  useEffect(() => {
+    const titles = {
+      dashboard: "Dashboard | Evergreen Horizon Academy",
+      students: "Student Enrollment Directory | Evergreen Horizon Academy",
+      teachers: "Faculty & Educator Directory | Evergreen Horizon Academy",
+      classes: "Classes Management | Evergreen Horizon Academy",
+      "class-details": "Class Details | Evergreen Horizon Academy",
+      subjects: "Subject Catalog | Evergreen Horizon Academy",
+      schedules: "School Schedules | Evergreen Horizon Academy",
+      "js-concepts": "JS Concepts | Evergreen Horizon Academy"
+    };
+    document.title = titles[activePage] || "Evergreen Horizon Academy | School Management System";
+  }, [activePage]);
+
   return (
-    <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
+    <div className="min-h-screen flex bg-background text-foreground transition-colors">
       {/* Sidebar Navigation */}
       <Sidebar />
 
@@ -27,13 +41,13 @@ function AppContent() {
 
         <main className="flex-1 pb-16">
           {activePage === "dashboard" && <DashboardPage />}
-          {activePage === "classes" && <ClassesPage />}
-          {activePage === "class-details" && <ClassDetailsPage />}
+          {/* {activePage === "classes" && <ClassesPage />} */}
+          {/* {activePage === "class-details" && <ClassDetailsPage />} */}
           {activePage === "students" && <StudentsPage />}
           {activePage === "teachers" && <TeachersPage />}
-          {activePage === "subjects" && <SubjectsPage />}
-          {activePage === "schedules" && <SchedulesPage />}
-          {activePage === "js-concepts" && <JsConceptsPage />}
+          {/* {activePage === "subjects" && <SubjectsPage />} */}
+          {/* {activePage === "schedules" && <SchedulesPage />} */}
+          {/* {activePage === "js-concepts" && <JsConceptsPage />} */}
         </main>
       </div>
 

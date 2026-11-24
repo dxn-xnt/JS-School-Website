@@ -1,13 +1,11 @@
 import React, { useState } from "react";
-import { Badge, Button } from "../components/common/UIComponents";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Code2,
-  CheckCircle2,
   FileCode,
   Sparkles,
-  Layers,
-  BookOpen,
-  ArrowRight,
   ChevronRight
 } from "lucide-react";
 
@@ -47,7 +45,7 @@ const schoolName = "Evergreen Horizon Academy"; // String
 
 // Number Type
 const studentCapacity = 25; // Number (Integer)
-const attendanceRate = 96.5; // Number (Float)
+const experienceYears = 12; // Number (Integer)
 
 // Boolean Type
 const isArchived = false; // Boolean flag for archive status
@@ -64,7 +62,7 @@ const classEntity = { id: "cls-1", name: "Grade 10-A" };
 // Array Type
 const weekdays = ["Monday", "Tuesday", "Wednesday"];`,
       explanation:
-        "Every JavaScript fundamental data type is utilized in modeling school entities: Strings for codes/names, Numbers for attendance/credits, Booleans for archive state, Null for unassigned teachers, Objects for entities, and Arrays for collections."
+        "Every JavaScript fundamental data type is utilized in modeling school entities: Strings for codes/names, Numbers for capacity/credits, Booleans for archive state, Null for unassigned teachers, Objects for entities, and Arrays for collections."
     },
     {
       id: 3,
@@ -90,8 +88,8 @@ const studentObj = {
   name: "Alexander Hayes",
   email: "alex.hayes@student.evergreen.edu",
   grade: "Grade 10",
-  attendanceRate: 96.5,
-  gpa: 3.88
+  gender: "Male",
+  status: "Active"
 };
 
 // 3. Teacher Object
@@ -119,7 +117,6 @@ const studentRecord = {
   // Nested Object inside student
   contact: {
     phone: "+1 (555) 111-2233",
-    guardianName: "Thomas & Rebecca Hayes",
     address: "742 Evergreen Terrace"
   },
   metadata: {
@@ -134,7 +131,7 @@ export const initialClasses = [
   { id: "cls-2", name: "Grade 9-B" }
 ];`,
       explanation:
-        "Nested objects allow clean grouping of emergency contacts and semester metadata, while arrays of objects store all school database records."
+        "Nested objects allow clean grouping of contact coordinates and semester metadata, while arrays of objects store all school database records."
     },
     {
       id: 5,
@@ -227,7 +224,6 @@ function getEnrolledStudentsForClass(classId) {
       fileReferences: ["src/data.js", "src/context/SchoolContext.jsx", "src/pages/DashboardPage.jsx"],
       codeSnippet: `// 1. Function Declaration
 export function calculateSchoolSummary(classes, students, teachers, subjects, schedules) {
-  // Computes aggregate analytics
   return { totalClasses: classes.length, totalStudents: students.length };
 }
 
@@ -242,8 +238,8 @@ export const matchesQuery = (targetStr, queryStr) => {
 };
 
 // 4. Callback Functions inside Array methods (.map, .filter, .reduce)
-const highAttendanceStudents = students.filter(function(st) {
-  return st.attendanceRate >= 95; // Callback predicate
+const activeStudents = students.filter(function(st) {
+  return st.status === "Active";
 });
 
 // 5. Higher-Order Function (Function that returns a Function)
@@ -263,24 +259,24 @@ export function createEntityFilter(searchQuery, keysToMatch) {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="rounded-3xl bg-gradient-to-r from-purple-700 via-indigo-700 to-blue-700 p-6 sm:p-8 text-white shadow-xl shadow-purple-500/10 space-y-3">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-semibold">
-          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+      <div className="rounded-2xl bg-card border border-border p-6 sm:p-8 text-card-foreground shadow-sm space-y-3">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+          <Sparkles className="w-3.5 h-3.5" />
           <span>School Presentation Guide</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
           JavaScript Core Concepts Reference
         </h1>
-        <p className="text-sm text-purple-100 max-w-3xl leading-relaxed">
+        <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
           This interactive showcase demonstrates how all 8 required JavaScript concepts are deeply integrated into the data models, state operations, and rendering pipeline of this School Management Website.
         </p>
       </div>
 
-      {/* 2-Column Explorer: Concept List & Code Inspector */}
+      {/* 2-Column Explorer */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Concept Selection Menu */}
         <div className="lg:col-span-4 space-y-2">
-          <div className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-1 mb-2">
+          <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1 mb-2">
             Required 8 JS Concepts
           </div>
 
@@ -288,21 +284,21 @@ export function createEntityFilter(searchQuery, keysToMatch) {
             const isSelected = concept.id === selectedConcept;
 
             return (
-              <button
+              <Card
                 key={concept.id}
                 onClick={() => setSelectedConcept(concept.id)}
-                className={`w-full text-left p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                className={`p-3.5 transition-all flex flex-row items-center justify-between gap-3 cursor-pointer ${
                   isSelected
-                    ? "bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-500/20"
-                    : "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+                    ? "bg-primary text-primary-foreground border-primary shadow-md"
+                    : "hover:border-border hover:bg-muted/30"
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div
-                    className={`w-7 h-7 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
                       isSelected
-                        ? "bg-white/20 text-white"
-                        : "bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400"
+                        ? "bg-primary-foreground/20 text-primary-foreground"
+                        : "bg-primary/10 text-primary"
                     }`}
                   >
                     {concept.id}
@@ -311,32 +307,32 @@ export function createEntityFilter(searchQuery, keysToMatch) {
                 </div>
                 <ChevronRight
                   className={`w-4 h-4 shrink-0 transition-transform ${
-                    isSelected ? "translate-x-0.5 text-white" : "text-slate-400"
+                    isSelected ? "translate-x-0.5 text-primary-foreground" : "text-muted-foreground"
                   }`}
                 />
-              </button>
+              </Card>
             );
           })}
         </div>
 
         {/* Right Detail & Code Viewer */}
         <div className="lg:col-span-8 space-y-4">
-          <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm space-y-5">
+          <Card className="p-6 shadow-sm space-y-5">
             <div>
-              <Badge size="md" variant="purple" className="mb-2">
+              <Badge variant="secondary" className="mb-2 font-bold">
                 Concept #{current.id}
               </Badge>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+              <h2 className="text-xl font-bold text-foreground">
                 {current.title}
               </h2>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                 {current.summary}
               </p>
             </div>
 
             {/* Implementation Explanation */}
-            <div className="rounded-2xl bg-slate-50 dark:bg-slate-950/40 p-4 border border-slate-100 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-              <span className="font-bold text-slate-900 dark:text-white block mb-1">
+            <div className="rounded-xl bg-muted/40 p-4 border border-border text-xs text-foreground leading-relaxed">
+              <span className="font-bold block mb-1">
                 Application Context & Rationale:
               </span>
               {current.explanation}
@@ -344,15 +340,15 @@ export function createEntityFilter(searchQuery, keysToMatch) {
 
             {/* Code Block */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-500">
+              <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
                 <span className="flex items-center gap-1.5">
-                  <FileCode className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                  <FileCode className="w-4 h-4 text-primary" />
                   Code Implementation Snippet
                 </span>
-                <span className="text-[11px] text-slate-400 font-mono">JavaScript (ES6+)</span>
+                <span className="text-[11px] font-mono">JavaScript (ES6+)</span>
               </div>
 
-              <div className="relative rounded-2xl bg-slate-950 p-4 font-mono text-xs text-slate-200 overflow-x-auto border border-slate-800 shadow-inner">
+              <div className="relative rounded-xl bg-slate-950 p-4 font-mono text-xs text-slate-200 overflow-x-auto border border-slate-800 shadow-inner">
                 <pre className="leading-relaxed whitespace-pre">
                   <code>{current.codeSnippet}</code>
                 </pre>
@@ -361,22 +357,23 @@ export function createEntityFilter(searchQuery, keysToMatch) {
 
             {/* File References */}
             <div className="pt-2">
-              <span className="text-xs font-bold text-slate-500 block mb-2">
+              <span className="text-xs font-bold text-muted-foreground block mb-2">
                 Where to inspect this concept in project files:
               </span>
               <div className="flex flex-wrap gap-2">
                 {current.fileReferences.map((file) => (
-                  <span
+                  <Badge
                     key={file}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-mono font-semibold bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800"
+                    variant="outline"
+                    className="gap-1.5 px-3 py-1 font-mono text-xs"
                   >
                     <Code2 className="w-3.5 h-3.5" />
-                    {file}
-                  </span>
+                    <span>{file}</span>
+                  </Badge>
                 ))}
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

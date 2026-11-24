@@ -1,8 +1,18 @@
 import React, { useState, useMemo } from "react";
 import { useSchool } from "../context/SchoolContext";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import {
-  Button,
-  Badge,
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell
+} from "@/components/ui/table";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
   SearchInput,
   SelectFilter,
   EmptyState,
@@ -16,8 +26,7 @@ import {
   GraduationCap,
   Mail,
   Phone,
-  User,
-  Activity
+  MapPin
 } from "lucide-react";
 import { StudentModal } from "../components/modals/StudentModal";
 import { GRADE_LEVELS } from "../data";
@@ -41,27 +50,21 @@ export function StudentsPage() {
 
   const activeSearch = localSearch || globalSearch;
 
-  // Filter students (Callback & higher order function logic)
+  // Filter students
   const filteredStudents = useMemo(() => {
     return students.filter((st) => {
-      // Grade filter
       if (gradeFilter !== "ALL" && st.grade !== gradeFilter) return false;
-
-      // Status filter
       if (statusFilter !== "ALL" && st.status !== statusFilter) return false;
-
-      // Class filter
       if (classFilter !== "ALL" && !st.enrolledClassIds.includes(classFilter)) return false;
 
-      // Search query filter
       if (activeSearch.trim()) {
         const query = activeSearch.toLowerCase().trim();
         const matchesName = st.name.toLowerCase().includes(query);
         const matchesEmail = st.email.toLowerCase().includes(query);
-        const matchesGuardian = st.contact?.guardianName?.toLowerCase().includes(query);
         const matchesPhone = st.contact?.phone?.toLowerCase().includes(query);
+        const matchesAddress = st.contact?.address?.toLowerCase().includes(query);
 
-        return matchesName || matchesEmail || matchesGuardian || matchesPhone;
+        return matchesName || matchesEmail || matchesPhone || matchesAddress;
       }
 
       return true;
@@ -73,31 +76,32 @@ export function StudentsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Users className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+          <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <Users className="w-6 h-6 text-primary" />
             Student Enrollment Directory
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Manage academic profiles, attendance records, guardian contacts, and class allocations.
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Manage student academic profiles, contact information, and class allocations.
           </p>
         </div>
 
         <Button
-          variant="primary"
-          icon={Plus}
+          variant="default"
           onClick={() => setModalState({ isOpen: true, data: null })}
+          className="gap-1.5"
         >
-          Register New Student
+          <Plus className="w-4 h-4" />
+          <span>Register New Student</span>
         </Button>
       </div>
 
       {/* Filter and Search Toolbar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
-        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+      <Card className="p-4 shadow-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
           <SearchInput
             value={localSearch}
             onChange={setLocalSearch}
-            placeholder="Search by student, email, or guardian..."
+            placeholder="Search by student name, email, or address..."
           />
 
           <SelectFilter
@@ -114,16 +118,16 @@ export function StudentsPage() {
             options={["Active", "On Leave", "Probation"]}
           />
 
-          <SelectFilter
+          {/* <SelectFilter
             value={classFilter}
             onChange={setClassFilter}
             label="All Classes"
             options={classes.map((c) => ({ value: c.id, label: c.name }))}
-          />
+          /> */}
         </div>
-      </div>
+      </Card>
 
-      {/* Student List */}
+      {/* Student List Table */}
       {filteredStudents.length === 0 ? (
         <EmptyState
           icon={Users}
@@ -133,67 +137,70 @@ export function StudentsPage() {
           onAction={() => setModalState({ isOpen: true, data: null })}
         />
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-950/50 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              <tr>
-                <th className="px-5 py-3.5">Student Information</th>
-                <th className="px-5 py-3.5">Grade Level</th>
-                <th className="px-5 py-3.5">Enrolled Class</th>
-                <th className="px-5 py-3.5">Attendance</th>
-                <th className="px-5 py-3.5">GPA</th>
-                <th className="px-5 py-3.5">Guardian Contact</th>
-                <th className="px-5 py-3.5">Status</th>
-                <th className="px-5 py-3.5 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+        <Card className="overflow-hidden p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/40">
+                <TableHead className="px-5 py-3.5">Student Information</TableHead>
+                <TableHead className="px-5 py-3.5">Grade Level</TableHead>
+                <TableHead className="px-5 py-3.5">Gender</TableHead>
+                {/* <TableHead className="px-5 py-3.5">Enrolled Class</TableHead> */}
+                <TableHead className="px-5 py-3.5">Contact Details</TableHead>
+                <TableHead className="px-5 py-3.5">Status</TableHead>
+                <TableHead className="px-5 py-3.5 text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {filteredStudents.map((student) => {
-                const enrolledClasses = classes.filter((c) =>
-                  student.enrolledClassIds?.includes(c.id)
-                );
+                // const enrolledClasses = classes.filter((c) =>
+                //   student.enrolledClassIds?.includes(c.id)
+                // );
 
                 return (
-                  <tr
-                    key={student.id}
-                    className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
-                  >
+                  <TableRow key={student.id}>
                     {/* Name & Email */}
-                    <td className="px-5 py-4">
+                    <TableCell className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-600 text-white font-bold flex items-center justify-center text-xs shadow-xs shrink-0">
-                          {student.name.charAt(0)}
-                        </div>
+                        <Avatar size="sm">
+                          <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                            {student.name.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
                         <div>
-                          <div className="font-bold text-slate-900 dark:text-white">
+                          <div className="font-bold text-foreground">
                             {student.name}
                           </div>
-                          <div className="text-xs text-slate-400 flex items-center gap-1">
+                          <div className="text-xs text-muted-foreground flex items-center gap-1">
                             <Mail className="w-3 h-3" />
                             {student.email}
                           </div>
                         </div>
                       </div>
-                    </td>
+                    </TableCell>
 
                     {/* Grade */}
-                    <td className="px-5 py-4">
-                      <Badge size="sm" variant="default">
+                    <TableCell className="px-5 py-3.5">
+                      <Badge variant="outline">
                         {student.grade}
                       </Badge>
-                    </td>
+                    </TableCell>
+
+                    {/* Gender */}
+                    <TableCell className="px-5 py-3.5 text-xs text-muted-foreground">
+                      {student.gender || "Male"}
+                    </TableCell>
 
                     {/* Enrolled Classes */}
-                    <td className="px-5 py-4">
+                    {/* <TableCell className="px-5 py-3.5">
                       <div className="flex flex-wrap gap-1 max-w-[200px]">
                         {enrolledClasses.length === 0 ? (
-                          <span className="text-xs text-slate-400 italic">Not Assigned</span>
+                          <span className="text-xs text-muted-foreground italic">Not Assigned</span>
                         ) : (
                           enrolledClasses.map((cls) => (
                             <button
                               key={cls.id}
                               onClick={() => navigateTo("class-details", cls.id)}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 hover:bg-blue-100 transition-colors border border-blue-200 dark:border-blue-900"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20 cursor-pointer"
                             >
                               <GraduationCap className="w-3 h-3" />
                               <span className="truncate max-w-[120px]">{cls.name}</span>
@@ -201,66 +208,50 @@ export function StudentsPage() {
                           ))
                         )}
                       </div>
-                    </td>
+                    </TableCell> */}
 
-                    {/* Attendance */}
-                    <td className="px-5 py-4">
-                      <span
-                        className={`text-xs font-bold ${
-                          student.attendanceRate >= 95
-                            ? "text-emerald-600"
-                            : student.attendanceRate >= 90
-                            ? "text-amber-600"
-                            : "text-rose-600"
-                        }`}
-                      >
-                        {student.attendanceRate}%
-                      </span>
-                    </td>
-
-                    {/* GPA */}
-                    <td className="px-5 py-4 text-xs font-bold text-slate-900 dark:text-white">
-                      {student.gpa}
-                    </td>
-
-                    {/* Guardian & Phone */}
-                    <td className="px-5 py-4 text-xs">
-                      <div className="font-medium text-slate-800 dark:text-slate-200">
-                        {student.contact?.guardianName || "N/A"}
+                    {/* Contact Phone & Address */}
+                    <TableCell className="px-5 py-3.5 text-xs">
+                      <div className="text-foreground flex items-center gap-1">
+                        <Phone className="w-3 h-3 text-muted-foreground" />
+                        <span>{student.contact?.phone || "N/A"}</span>
                       </div>
-                      <div className="text-slate-400 flex items-center gap-1 mt-0.5">
-                        <Phone className="w-3 h-3" />
-                        {student.contact?.phone || "N/A"}
+                      <div className="text-muted-foreground flex items-center gap-1 mt-0.5">
+                        <MapPin className="w-3 h-3" />
+                        <span className="truncate max-w-[180px]">{student.contact?.address || "Main City"}</span>
                       </div>
-                    </td>
+                    </TableCell>
 
                     {/* Status */}
-                    <td className="px-5 py-4">
+                    <TableCell className="px-5 py-3.5">
                       <Badge
-                        size="sm"
                         variant={
                           student.status === "Active"
-                            ? "success"
+                            ? "default"
                             : student.status === "On Leave"
-                            ? "warning"
-                            : "danger"
+                            ? "secondary"
+                            : "destructive"
                         }
                       >
                         {student.status}
                       </Badge>
-                    </td>
+                    </TableCell>
 
                     {/* Actions */}
-                    <td className="px-5 py-4 text-right">
-                      <div className="inline-flex items-center gap-1.5">
-                        <button
+                    <TableCell className="px-5 py-3.5 text-right">
+                      <div className="inline-flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
                           onClick={() => setModalState({ isOpen: true, data: student })}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                           title="Edit Student"
                         >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          className="text-destructive hover:bg-destructive/10"
                           onClick={() =>
                             setDeleteConfirm({
                               isOpen: true,
@@ -268,19 +259,18 @@ export function StudentsPage() {
                               studentName: student.name
                             })
                           }
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                           title="Delete Student"
                         >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 );
               })}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </Card>
       )}
 
       {/* Student Modal */}

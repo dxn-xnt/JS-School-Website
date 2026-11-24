@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { useSchool } from "../context/SchoolContext";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import {
-  StatCard,
-  Button,
-  Badge
+  StatCard
 } from "../components/common/UIComponents";
 import {
   GraduationCap,
@@ -42,7 +44,7 @@ export function DashboardPage() {
 
   const activeClasses = classes.filter((c) => !c.isArchived);
 
-  // Group classes by Grade level (Arrays & Higher order concept)
+  // Group classes by Grade level
   const gradeDistribution = ["Grade 9", "Grade 10", "Grade 11", "Grade 12"].map((grade) => {
     const matching = activeClasses.filter((c) => c.grade === grade);
     const studentCount = matching.reduce(
@@ -56,83 +58,93 @@ export function DashboardPage() {
     };
   });
 
-  // Monday / Current day schedules sample
   const sampleSchedules = schedules.slice(0, 5);
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-6 sm:p-8 text-white shadow-xl shadow-blue-500/10">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-800 text-white p-6 sm:p-8 border border-zinc-800 shadow-lg shadow-black/10">
+        {/* Subtle decorative background ambient glow */}
+        <div className="absolute -right-12 -top-12 w-64 h-64 bg-zinc-700/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute right-1/4 -bottom-12 w-48 h-48 bg-zinc-600/10 rounded-full blur-2xl pointer-events-none" />
+
         <div className="relative z-10 max-w-2xl space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-semibold">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-zinc-200 backdrop-blur-md text-xs font-semibold border border-white/10">
+            <Sparkles className="w-3.5 h-3.5 text-zinc-300" />
             <span>School Administration System</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
             Academic Operations Dashboard
           </h1>
-          <p className="text-sm text-blue-100 leading-relaxed">
+          <p className="text-sm text-zinc-300 leading-relaxed">
             Manage student cohorts, assign certified faculty, configure subject syllabi, and organize class timetables seamlessly.
           </p>
 
           {/* Quick Action Buttons */}
           <div className="flex flex-wrap gap-2.5 pt-3">
-            <Button
+            {/* <Button
               variant="secondary"
               size="sm"
-              icon={Plus}
               onClick={() => setModalType("class")}
-              className="bg-white text-blue-900 hover:bg-blue-50 border-0 font-bold"
+              className="gap-1.5 font-semibold bg-white text-zinc-950 hover:bg-zinc-200 border-0 shadow-xs cursor-pointer"
             >
+              <Plus className="w-4 h-4" />
               Add Class
-            </Button>
+            </Button> */}
             <Button
-              variant="secondary"
+              variant="outline"
               size="sm"
-              icon={Plus}
               onClick={() => setModalType("student")}
-              className="bg-white/20 text-white hover:bg-white/30 border-0 font-medium backdrop-blur-md"
+              className="gap-1.5 font-medium bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-md cursor-pointer"
             >
+              <Plus className="w-4 h-4" />
               Enroll Student
             </Button>
             <Button
-              variant="secondary"
+              variant="outline"
               size="sm"
-              icon={Plus}
+              onClick={() => setModalType("teacher")}
+              className="gap-1.5 font-medium bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-md cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              Add Faculty Teacher
+            </Button>
+            {/* <Button
+              variant="outline"
+              size="sm"
               onClick={() => setModalType("schedule")}
-              className="bg-white/20 text-white hover:bg-white/30 border-0 font-medium backdrop-blur-md"
+              className="gap-1.5 font-medium bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-md cursor-pointer"
             >
+              <Plus className="w-4 h-4" />
               Schedule Timetable
-            </Button>
-            <Button
-              variant="secondary"
+            </Button> */}
+            {/* <Button
+              variant="ghost"
               size="sm"
-              icon={ArrowRight}
               onClick={() => navigateTo("js-concepts")}
-              className="bg-white/20 text-white hover:bg-white/30 border-0 font-medium backdrop-blur-md"
+              className="gap-1.5 font-medium text-zinc-200 hover:text-white hover:bg-white/10 cursor-pointer"
             >
-              View JS Concepts
-            </Button>
+              <span>View JS Concepts</span>
+              <ArrowRight className="w-4 h-4" />
+            </Button> */}
           </div>
         </div>
       </div>
 
-      {/* 6 Metric Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        <StatCard
+      {/* Metric Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* <StatCard
           title="Active Classes"
           value={summaryStats.activeClassesCount}
           subtitle={`${summaryStats.archivedClassesCount} Archived`}
           icon={GraduationCap}
-          color="blue"
           onClick={() => navigateTo("classes")}
-        />
+        /> */}
         <StatCard
           title="Enrolled Students"
           value={summaryStats.totalStudents}
-          subtitle={`Avg Attendance: ${summaryStats.averageAttendance}%`}
+          subtitle="Active School Enrollment"
           icon={Users}
-          color="emerald"
           onClick={() => navigateTo("students")}
         />
         <StatCard
@@ -140,98 +152,89 @@ export function DashboardPage() {
           value={summaryStats.totalTeachers}
           subtitle="All Active Departments"
           icon={UserCheck}
-          color="purple"
           onClick={() => navigateTo("teachers")}
         />
-        <StatCard
+        {/* <StatCard
           title="Curriculum Subjects"
           value={summaryStats.totalSubjects}
           subtitle="Across 6 Academic Depts"
           icon={BookOpen}
-          color="amber"
           onClick={() => navigateTo("subjects")}
-        />
-        <StatCard
+        /> */}
+        {/* <StatCard
           title="Class Occupancy"
           value={`${summaryStats.occupancyPercentage}%`}
           subtitle={`${summaryStats.totalStudents}/${summaryStats.totalStudentCapacity} Total Seats`}
           icon={Percent}
-          color="indigo"
-        />
-        <StatCard
+        /> */}
+        {/* <StatCard
           title="Weekly Timetables"
           value={summaryStats.totalSchedules}
           subtitle="Active Schedule Slots"
           icon={CalendarDays}
-          color="rose"
           onClick={() => navigateTo("schedules")}
-        />
+        /> */}
       </div>
 
-      {/* 2-Column Content Grid: Grade Distribution & Today's Schedules */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Grade Cohort Breakdown */}
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <Layers className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              Grade Level Cohorts
-            </h3>
-            <span className="text-xs text-slate-400 font-medium">4 Levels</span>
+      {/* 2-Column Content Grid */}
+      {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="p-5 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <Layers className="w-4 h-4 text-primary" />
+                Grade Level Cohorts
+              </h3>
+              <span className="text-xs text-muted-foreground font-medium">4 Levels</span>
+            </div>
+
+            <div className="space-y-3.5">
+              {gradeDistribution.map((item) => {
+                const maxScale = Math.max(...gradeDistribution.map((g) => g.studentCount), 1);
+                const percentage = Math.round((item.studentCount / maxScale) * 100);
+
+                return (
+                  <div key={item.grade} className="space-y-1.5">
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span className="text-foreground">{item.grade}</span>
+                      <span className="text-muted-foreground">
+                        {item.classCount} classes • {item.studentCount} students
+                      </span>
+                    </div>
+                    <Progress value={percentage} className="h-2" />
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="space-y-3.5">
-            {gradeDistribution.map((item) => {
-              const maxScale = Math.max(...gradeDistribution.map((g) => g.studentCount), 1);
-              const percentage = Math.round((item.studentCount / maxScale) * 100);
-
-              return (
-                <div key={item.grade} className="space-y-1.5">
-                  <div className="flex justify-between text-xs font-semibold">
-                    <span className="text-slate-700 dark:text-slate-300">{item.grade}</span>
-                    <span className="text-slate-500 dark:text-slate-400">
-                      {item.classCount} classes • {item.studentCount} students
-                    </span>
-                  </div>
-                  <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-500"
-                      style={{ width: `${percentage}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
-            <span className="text-slate-500 dark:text-slate-400">Capacity Utilization</span>
-            <span className="font-bold text-blue-600 dark:text-blue-400">
+          <div className="mt-6 pt-4 border-t border-border flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Capacity Utilization</span>
+            <span className="font-bold text-primary">
               {summaryStats.totalStudents} / {summaryStats.totalStudentCapacity} Allocated Seats
             </span>
           </div>
-        </div>
+        </Card>
 
-        {/* Timetable Schedule Preview */}
-        <div className="lg:col-span-2 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs flex flex-col justify-between">
+        <Card className="lg:col-span-2 p-5 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Clock className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <Clock className="w-4 h-4 text-primary" />
                 Featured Schedule Highlights
               </h3>
               <Button
                 variant="ghost"
                 size="sm"
-                icon={ArrowRight}
-                iconPosition="right"
                 onClick={() => navigateTo("schedules")}
+                className="gap-1 text-xs"
               >
-                View Full Timetable
+                <span>View Full Timetable</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </Button>
             </div>
 
-            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+            <div className="divide-y divide-border">
               {sampleSchedules.map((slot) => {
                 const cls = classes.find((c) => c.id === slot.classId);
                 const teacher = getTeacherById(slot.teacherId);
@@ -240,32 +243,32 @@ export function DashboardPage() {
                 return (
                   <div
                     key={slot.id}
-                    className="py-3 flex items-center justify-between gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/40 rounded-xl px-2.5 transition-colors"
+                    className="py-3 flex items-center justify-between gap-4 hover:bg-muted/40 rounded-xl px-2.5 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="rounded-xl bg-purple-50 dark:bg-purple-950/60 p-2 text-purple-600 dark:text-purple-400 font-bold text-xs">
+                      <div className="rounded-xl bg-primary/10 p-2 text-primary font-bold text-xs">
                         {slot.day.substring(0, 3)}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-slate-900 dark:text-white">
+                          <span className="text-xs font-bold text-foreground">
                             {subject?.name || "Subject"}
                           </span>
-                          <Badge size="sm" variant="default">
+                          <Badge variant="outline">
                             {cls?.name || "Class"}
                           </Badge>
-                          <Badge size="sm" variant="purple">
+                          <Badge variant="secondary">
                             {slot.type}
                           </Badge>
                         </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-0.5">
+                        <p className="text-[11px] text-muted-foreground flex items-center gap-2 mt-0.5">
                           <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-slate-400" />
+                            <Clock className="w-3 h-3" />
                             {slot.startTime}
                           </span>
                           <span>•</span>
                           <span className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-slate-400" />
+                            <MapPin className="w-3 h-3" />
                             {slot.room}
                           </span>
                           <span>•</span>
@@ -278,28 +281,28 @@ export function DashboardPage() {
               })}
             </div>
           </div>
-        </div>
-      </div>
+        </Card>
+      </div> */}
 
       {/* Active Classes Grid Preview */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+      {/* <Card className="p-5 shadow-xs">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+            <h3 className="text-sm font-bold text-foreground">
               Active Class Sections
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-muted-foreground">
               Click any class card to view full roster, subject syllabus, and timetable slots.
             </p>
           </div>
           <Button
             variant="outline"
             size="sm"
-            icon={ArrowRight}
-            iconPosition="right"
             onClick={() => navigateTo("classes")}
+            className="gap-1 text-xs"
           >
-            Manage All Classes
+            <span>Manage All Classes</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </Button>
         </div>
 
@@ -310,71 +313,58 @@ export function DashboardPage() {
             const capacityRatio = (enrolled.length / cls.capacity) * 100;
 
             return (
-              <div
+              <Card
                 key={cls.id}
                 onClick={() => navigateTo("class-details", cls.id)}
-                className="group relative rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4.5 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition-all cursor-pointer space-y-3"
+                className="group relative p-4 hover:shadow-md hover:border-primary/50 transition-all cursor-pointer space-y-3 bg-card"
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <Badge size="sm" variant="primary">
+                    <Badge variant="default">
                       {cls.grade}
                     </Badge>
-                    <h4 className="mt-1.5 text-sm font-bold text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">
+                    <h4 className="mt-1.5 text-sm font-bold text-foreground group-hover:text-primary transition-colors">
                       {cls.name}
                     </h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-xs text-muted-foreground">
                       {cls.room} • {cls.code}
                     </p>
                   </div>
-                  <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
+                  <div className="p-2 rounded-xl bg-primary/10 text-primary">
                     <GraduationCap className="w-5 h-5" />
                   </div>
                 </div>
 
-                {/* Teacher info */}
-                <div className="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2">
-                  <UserCheck className="w-3.5 h-3.5 text-slate-400" />
+                <div className="text-xs text-muted-foreground flex items-center gap-2">
+                  <UserCheck className="w-3.5 h-3.5" />
                   <span>Lead: {leadTeacher?.name || "Unassigned"}</span>
                 </div>
 
-                {/* Capacity progress */}
                 <div className="space-y-1">
-                  <div className="flex justify-between text-[11px] font-medium text-slate-500">
+                  <div className="flex justify-between text-[11px] font-medium text-muted-foreground">
                     <span>Enrolled Roster</span>
-                    <span className="font-bold text-slate-700 dark:text-slate-200">
+                    <span className="font-bold text-foreground">
                       {enrolled.length} / {cls.capacity}
                     </span>
                   </div>
-                  <div className="h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${
-                        capacityRatio >= 90
-                          ? "bg-rose-500"
-                          : capacityRatio >= 70
-                          ? "bg-amber-500"
-                          : "bg-emerald-500"
-                      }`}
-                      style={{ width: `${Math.min(capacityRatio, 100)}%` }}
-                    />
-                  </div>
+                  <Progress value={Math.min(capacityRatio, 100)} className="h-1.5" />
                 </div>
 
-                <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs text-blue-600 dark:text-blue-400 font-semibold">
+                <div className="pt-2 border-t border-border flex items-center justify-between text-xs text-primary font-semibold">
                   <span>View Details</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>
-      </div>
+      </Card> */}
 
       {/* Global Modals */}
-      <ClassModal isOpen={modalType === "class"} onClose={() => setModalType(null)} />
+      {/* <ClassModal isOpen={modalType === "class"} onClose={() => setModalType(null)} /> */}
       <StudentModal isOpen={modalType === "student"} onClose={() => setModalType(null)} />
       <TeacherModal isOpen={modalType === "teacher"} onClose={() => setModalType(null)} />
-      <ScheduleModal isOpen={modalType === "schedule"} onClose={() => setModalType(null)} />
+      {/* <ScheduleModal isOpen={modalType === "schedule"} onClose={() => setModalType(null)} /> */}
     </div>
   );
 }
