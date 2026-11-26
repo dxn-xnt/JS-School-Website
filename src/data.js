@@ -1,41 +1,36 @@
-/**
- * ============================================================================
- * SCHOOL STATIC DATA MODULE (src/data.js)
- * ============================================================================
- * 
- * JAVASCRIPT CONCEPTS DEMONSTRATED IN THIS FILE:
- * ----------------------------------------------------------------------------
- * 1. VARIABLES: const, let, var
- * 2. TYPES OF VARIABLES:
- *    - String: "Grade 10-A", "Sarah Jenkins"
- *    - Number: 30 (capacity), 4 (credits), 12 (experienceYears)
- *    - Boolean: true / false (isArchived, isActive)
- *    - Null: null (unassigned teacher or placeholder)
- *    - Undefined: undefined (demonstrated in helper/optional fields)
- *    - Object: { id: "cls-1", ... }
- *    - Array: ["Monday", "Wednesday"]
- * 3. OBJECTS: Class, Student, Teacher, Subject, Schedule entities
- * 4. TYPES OF OBJECTS:
- *    - Object literals: { id: "std-1", ... }
- *    - Nested objects: contact: { phone: "...", address: "..." }
- *    - Arrays of objects: initialClasses, initialStudents, etc.
- * 5. ARRAYS: classes, students, teachers, subjects, schedules
- * 6. TYPES OF ARRAYS:
- *    - One-dimensional arrays: WEEKDAYS, GRADE_LEVELS, DEPARTMENTS
- *    - Arrays of objects: initialStudents, initialTeachers
- *    - Nested arrays: matrix / enrolledClassIds
- * ============================================================================
- */
+// ==========================================================================
+// EVERGREEN HORIZON ACADEMY - src/data.js
+// All app data, helper functions, factories and the shared DataStore live here.
+// Read this file from top to bottom: each section teaches one JavaScript topic.
+//
+// TOPIC CHECKLIST (where each required topic is shown)
+// [x] Variables & Types   -> Section 1, line  17 (const, let, string, number, boolean, null, undefined)
+// [x] Objects             -> Section 2, line  55 (SCHOOL_INFO: nested object + method, subject/schedule shapes)
+// [x] Arrays              -> Section 3, line  78 (initialSubjects, initialSchedules, students, teachers, classes)
+// [x] Functions           -> Section 4, line 771 (declaration, expression, arrow, default parameters)
+// [x] Factory             -> Section 5, line 915 (createSubject, createSchedule, createRecord)
+// [x] Singleton Pattern   -> Section 6, line 979 (DataStore.getInstance())
+// Section 7, line 1079 lists everything this file exports.
+// ==========================================================================
 
-// 1. VARIABLES & TYPES: Constants & primitive string/number arrays
-export const SCHOOL_NAME = "Evergreen Horizon Academy";
-export const ACADEMIC_YEAR = "2026-2027";
-export const SEMESTER = "Spring Term";
+// ==========================================
+// SECTION 1: VARIABLES & TYPES
+// const = a value that never gets reassigned, let = a value that changes (we never use var)
+// ==========================================
+const SCHOOL_NAME = "Evergreen Horizon Academy"; // string
+const ACADEMIC_YEAR = "2026-2027"; // string
+const SEMESTER = "Spring Term"; // string
 
-// 6. TYPES OF ARRAYS: One-dimensional primitive string arrays
-export const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-export const GRADE_LEVELS = ["Grade 9", "Grade 10", "Grade 11", "Grade 12"];
-export const DEPARTMENTS = [
+const DEFAULT_CREDITS = 3; // number
+const DEFAULT_WEEKLY_HOURS = 3; // number
+const DEFAULT_SESSION_TYPE = "Lecture"; // string
+const DEFAULT_ROOM = "Room TBA"; // string
+const DEFAULT_SUBJECT_COLOR = "from-blue-500 to-indigo-600"; // string (Tailwind gradient classes)
+const STORAGE_KEY = "evergreen_school_admin_v2"; // string: prefix for the browser's localStorage keys
+
+const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]; // array of strings
+const GRADE_LEVELS = ["Grade 9", "Grade 10", "Grade 11", "Grade 12"];
+const DEPARTMENTS = [
   "Mathematics",
   "Sciences",
   "Humanities",
@@ -43,7 +38,7 @@ export const DEPARTMENTS = [
   "Computer Science",
   "Arts & Physical Ed"
 ];
-export const SCHEDULE_TIME_SLOTS = [
+const SCHEDULE_TIME_SLOTS = [
   "08:00 - 09:00",
   "09:15 - 10:15",
   "10:30 - 11:30",
@@ -52,14 +47,40 @@ export const SCHEDULE_TIME_SLOTS = [
   "14:45 - 15:45"
 ];
 
-// Variable showing undefined & null usage explicitly
-export const DEFAULT_UNASSIGNED_TEACHER = null;
-export let optionalConfiguration = undefined; // Concept 2: Undefined variable
+const DEFAULT_UNASSIGNED_TEACHER = null; // null: "empty on purpose" (a schedule with no teacher)
+let optionalConfiguration = undefined; // undefined: "not set yet" (let, because it may change later)
+let createdIdCount = 0; // number that goes up every time generateId() runs
 
-// ----------------------------------------------------------------------------
-// 3. OBJECTS: TEACHERS DATA (Array of Teacher Objects)
-// ----------------------------------------------------------------------------
-export const initialTeachers = [
+// ==========================================
+// SECTION 2: OBJECTS
+// An object groups related values under named properties: { name: value }
+// ==========================================
+
+// One school object. It shows a nested object (term) and a method (getTitle).
+const SCHOOL_INFO = {
+  name: SCHOOL_NAME, // string property
+  academicYear: ACADEMIC_YEAR, // string property
+  isOpen: true, // boolean property
+  website: optionalConfiguration, // undefined property (no website set yet)
+  term: { name: SEMESTER, startMonth: "January", endMonth: "June" }, // nested object
+  // Method: a function stored inside an object. "this" means SCHOOL_INFO itself.
+  getTitle() {
+    return `${this.name} (${this.academicYear})`;
+  }
+};
+
+// Shape of a SUBJECT object (real examples are in Section 3):
+//   { id, code, name, department, credits, weeklyHours, description, color, isActive, isLab }
+// Shape of a SCHEDULE object (real examples are in Section 3):
+//   { id, classId, subjectId, teacherId, day, time: { start, end }, room, type }
+
+// ==========================================
+// SECTION 3: ARRAYS
+// An array is an ordered list. Here every list holds objects (one per record).
+// ==========================================
+
+// Teachers: array of teacher objects
+const initialTeachers = [
   {
     id: "tch-1",
     name: "Dr. Eleanor Vance",
@@ -140,106 +161,120 @@ export const initialTeachers = [
   }
 ];
 
-// ----------------------------------------------------------------------------
-// 3. OBJECTS: SUBJECTS DATA (Array of Subject Objects)
-// ----------------------------------------------------------------------------
-export const initialSubjects = [
+// Subjects: array of subject objects (isActive and isLab are booleans)
+const initialSubjects = [
   {
     id: "sbj-1",
     code: "MATH-101",
     name: "Advanced Mathematics",
     department: "Mathematics",
-    credits: 4,
-    weeklyHours: 5,
-    description: "Calculus, analytical geometry, functions, and mathematical modeling.",
-    color: "from-blue-500 to-indigo-600"
+    credits: 4, // number
+    weeklyHours: 5, // number
+    description: "Calculus, analytical geometry, functions, and mathematical modeling.", // string
+    color: "from-blue-500 to-indigo-600",
+    isActive: true, // boolean
+    isLab: false // boolean: does this subject use a lab?
   },
   {
     id: "sbj-2",
     code: "PHYS-201",
     name: "Applied Physics",
     department: "Sciences",
-    credits: 4,
-    weeklyHours: 4,
-    description: "Newtonian mechanics, thermodynamics, wave optics, and electromagnetic fields.",
-    color: "from-emerald-500 to-teal-600"
+    credits: 4, // number
+    weeklyHours: 4, // number
+    description: "Newtonian mechanics, thermodynamics, wave optics, and electromagnetic fields.", // string
+    color: "from-emerald-500 to-teal-600",
+    isActive: true, // boolean
+    isLab: true // boolean: does this subject use a lab?
   },
   {
     id: "sbj-3",
     code: "LIT-102",
     name: "World Literature",
     department: "Languages",
-    credits: 3,
-    weeklyHours: 4,
-    description: "Critical analysis of classical & contemporary global literature and composition.",
-    color: "from-purple-500 to-pink-600"
+    credits: 3, // number
+    weeklyHours: 4, // number
+    description: "Critical analysis of classical & contemporary global literature and composition.", // string
+    color: "from-purple-500 to-pink-600",
+    isActive: true, // boolean
+    isLab: false // boolean: does this subject use a lab?
   },
   {
     id: "sbj-4",
     code: "CS-301",
     name: "Computer Science & Logic",
     department: "Computer Science",
-    credits: 4,
-    weeklyHours: 5,
-    description: "Algorithms, structured data, web technologies, and computational problem solving.",
-    color: "from-cyan-500 to-blue-600"
+    credits: 4, // number
+    weeklyHours: 5, // number
+    description: "Algorithms, structured data, web technologies, and computational problem solving.", // string
+    color: "from-cyan-500 to-blue-600",
+    isActive: true, // boolean
+    isLab: true // boolean: does this subject use a lab?
   },
   {
     id: "sbj-5",
     code: "CHEM-202",
     name: "Organic & Inorganic Chemistry",
     department: "Sciences",
-    credits: 4,
-    weeklyHours: 4,
-    description: "Atomic structure, chemical kinetics, organic reactions, and laboratory safety.",
-    color: "from-amber-500 to-orange-600"
+    credits: 4, // number
+    weeklyHours: 4, // number
+    description: "Atomic structure, chemical kinetics, organic reactions, and laboratory safety.", // string
+    color: "from-amber-500 to-orange-600",
+    isActive: true, // boolean
+    isLab: true // boolean: does this subject use a lab?
   },
   {
     id: "sbj-6",
     code: "HIST-105",
     name: "Modern World History",
     department: "Humanities",
-    credits: 3,
-    weeklyHours: 3,
-    description: "Major social, political, and economic revolutions of the 19th and 20th centuries.",
-    color: "from-rose-500 to-red-600"
+    credits: 3, // number
+    weeklyHours: 3, // number
+    description: "Major social, political, and economic revolutions of the 19th and 20th centuries.", // string
+    color: "from-rose-500 to-red-600",
+    isActive: true, // boolean
+    isLab: false // boolean: does this subject use a lab?
   },
   {
     id: "sbj-7",
     code: "BIO-104",
     name: "Cellular Biology & Genetics",
     department: "Sciences",
-    credits: 4,
-    weeklyHours: 4,
-    description: "Cellular structures, DNA replication, heredity principles, and ecology.",
-    color: "from-green-500 to-emerald-600"
+    credits: 4, // number
+    weeklyHours: 4, // number
+    description: "Cellular structures, DNA replication, heredity principles, and ecology.", // string
+    color: "from-green-500 to-emerald-600",
+    isActive: true, // boolean
+    isLab: true // boolean: does this subject use a lab?
   },
   {
     id: "sbj-8",
     code: "ART-110",
     name: "Studio Fine Arts & Design",
     department: "Arts & Physical Ed",
-    credits: 2,
-    weeklyHours: 2,
-    description: "Visual composition, perspective drawing, color theory, and digital graphics.",
-    color: "from-violet-500 to-purple-600"
+    credits: 2, // number
+    weeklyHours: 2, // number
+    description: "Visual composition, perspective drawing, color theory, and digital graphics.", // string
+    color: "from-violet-500 to-purple-600",
+    isActive: true, // boolean
+    isLab: false // boolean: does this subject use a lab?
   },
   {
     id: "sbj-9",
     code: "PE-101",
     name: "Physical Health & Athletics",
     department: "Arts & Physical Ed",
-    credits: 2,
-    weeklyHours: 2,
-    description: "Cardiovascular endurance, team sports tactics, and nutritional health.",
-    color: "from-teal-500 to-cyan-600"
+    credits: 2, // number
+    weeklyHours: 2, // number
+    description: "Cardiovascular endurance, team sports tactics, and nutritional health.", // string
+    color: "from-teal-500 to-cyan-600",
+    isActive: true, // boolean
+    isLab: false // boolean: does this subject use a lab?
   }
 ];
 
-// ----------------------------------------------------------------------------
-// 4. TYPES OF OBJECTS: NESTED OBJECTS & ARRAYS OF OBJECTS (STUDENTS)
-// ----------------------------------------------------------------------------
-export const initialStudents = [
+// Students: array of student objects (each has a nested contact object)
+const initialStudents = [
   {
     id: "std-1",
     name: "Alexander Hayes",
@@ -476,10 +511,8 @@ export const initialStudents = [
   }
 ];
 
-// ----------------------------------------------------------------------------
-// 3. OBJECTS: CLASSES DATA (Array of Class Objects)
-// ----------------------------------------------------------------------------
-export const initialClasses = [
+// Classes: array of class objects
+const initialClasses = [
   {
     id: "cls-1",
     name: "Grade 10-A (Honors STEM)",
@@ -590,17 +623,15 @@ export const initialClasses = [
   }
 ];
 
-// ----------------------------------------------------------------------------
-// 3. OBJECTS: SCHEDULES DATA (Array of Schedule Objects - Timetable)
-// ----------------------------------------------------------------------------
-export const initialSchedules = [
+// Schedules: array of schedule objects (each has a nested time object)
+const initialSchedules = [
   {
     id: "sch-1",
     classId: "cls-1",
     subjectId: "sbj-1",
     teacherId: "tch-1",
     day: "Monday",
-    startTime: "08:00 - 09:00",
+    time: { start: "08:00", end: "09:00" }, // nested object
     room: "Science Wing 301",
     type: "Lecture"
   },
@@ -610,7 +641,7 @@ export const initialSchedules = [
     subjectId: "sbj-2",
     teacherId: "tch-2",
     day: "Monday",
-    startTime: "09:15 - 10:15",
+    time: { start: "09:15", end: "10:15" }, // nested object
     room: "Physics Lab 102",
     type: "Lab Practical"
   },
@@ -620,7 +651,7 @@ export const initialSchedules = [
     subjectId: "sbj-4",
     teacherId: "tch-4",
     day: "Wednesday",
-    startTime: "10:30 - 11:30",
+    time: { start: "10:30", end: "11:30" }, // nested object
     room: "Tech Lab 202",
     type: "Lab Practical"
   },
@@ -630,7 +661,7 @@ export const initialSchedules = [
     subjectId: "sbj-3",
     teacherId: "tch-3",
     day: "Tuesday",
-    startTime: "08:00 - 09:00",
+    time: { start: "08:00", end: "09:00" }, // nested object
     room: "Main Hall 104",
     type: "Seminar"
   },
@@ -640,7 +671,7 @@ export const initialSchedules = [
     subjectId: "sbj-2",
     teacherId: "tch-2",
     day: "Thursday",
-    startTime: "09:15 - 10:15",
+    time: { start: "09:15", end: "10:15" }, // nested object
     room: "Main Hall 104",
     type: "Lecture"
   },
@@ -650,7 +681,7 @@ export const initialSchedules = [
     subjectId: "sbj-8",
     teacherId: "tch-6",
     day: "Friday",
-    startTime: "13:30 - 14:30",
+    time: { start: "13:30", end: "14:30" }, // nested object
     room: "Art Studio B",
     type: "Studio Workshop"
   },
@@ -660,7 +691,7 @@ export const initialSchedules = [
     subjectId: "sbj-4",
     teacherId: "tch-4",
     day: "Monday",
-    startTime: "11:45 - 12:45",
+    time: { start: "11:45", end: "12:45" }, // nested object
     room: "Tech Lab 202",
     type: "Lecture"
   },
@@ -670,7 +701,7 @@ export const initialSchedules = [
     subjectId: "sbj-1",
     teacherId: "tch-1",
     day: "Wednesday",
-    startTime: "13:30 - 14:30",
+    time: { start: "13:30", end: "14:30" }, // nested object
     room: "Tech Lab 202",
     type: "Tutorial"
   },
@@ -680,7 +711,7 @@ export const initialSchedules = [
     subjectId: "sbj-3",
     teacherId: "tch-3",
     day: "Tuesday",
-    startTime: "10:30 - 11:30",
+    time: { start: "10:30", end: "11:30" }, // nested object
     room: "Humanities Wing 112",
     type: "Lecture"
   },
@@ -690,7 +721,7 @@ export const initialSchedules = [
     subjectId: "sbj-6",
     teacherId: "tch-6",
     day: "Thursday",
-    startTime: "11:45 - 12:45",
+    time: { start: "11:45", end: "12:45" }, // nested object
     room: "Humanities Wing 112",
     type: "Seminar"
   },
@@ -700,7 +731,7 @@ export const initialSchedules = [
     subjectId: "sbj-5",
     teacherId: "tch-5",
     day: "Monday",
-    startTime: "14:45 - 15:45",
+    time: { start: "14:45", end: "15:45" }, // nested object
     room: "Chemistry Lab 304",
     type: "Lab Practical"
   },
@@ -710,7 +741,7 @@ export const initialSchedules = [
     subjectId: "sbj-7",
     teacherId: "tch-5",
     day: "Wednesday",
-    startTime: "09:15 - 10:15",
+    time: { start: "09:15", end: "10:15" }, // nested object
     room: "Bio Lab 305",
     type: "Lecture"
   },
@@ -720,7 +751,7 @@ export const initialSchedules = [
     subjectId: "sbj-6",
     teacherId: "tch-6",
     day: "Tuesday",
-    startTime: "13:30 - 14:30",
+    time: { start: "13:30", end: "14:30" }, // nested object
     room: "West Hall 210",
     type: "Lecture"
   },
@@ -730,76 +761,100 @@ export const initialSchedules = [
     subjectId: "sbj-9",
     teacherId: "tch-2",
     day: "Friday",
-    startTime: "14:45 - 15:45",
+    time: { start: "14:45", end: "15:45" }, // nested object
     room: "Athletic Gymnasium",
     type: "Physical Session"
   }
 ];
 
-// ----------------------------------------------------------------------------
-// 6. TYPES OF ARRAYS: Nested matrix demo (Weekly Time Matrix representation)
-// ----------------------------------------------------------------------------
-export const TIMETABLE_GRID_MATRIX = [
-  // [Slot Name, Monday, Tuesday, Wednesday, Thursday, Friday]
-  ["08:00 - 09:00", ["sch-1"], ["sch-4"], [], [], []],
-  ["09:15 - 10:15", ["sch-2"], [], ["sch-12"], ["sch-5"], []],
-  ["10:30 - 11:30", [], ["sch-9"], ["sch-3"], [], []],
-  ["11:45 - 12:45", ["sch-7"], [], [], ["sch-10"], []],
-  ["13:30 - 14:30", [], ["sch-13"], ["sch-8"], [], ["sch-6"]],
-  ["14:45 - 15:45", ["sch-11"], [], [], [], ["sch-14"]]
-];
+// ==========================================
+// SECTION 4: FUNCTIONS
+// Small, single-purpose helpers. Pages and the factories reuse them.
+// ==========================================
 
-// ----------------------------------------------------------------------------
-// 8. TYPES OF FUNCTIONS: Helper Functions Demonstrating Declarations,
-// Expressions, Arrows, Callbacks, and Higher-Order Functions
-// ----------------------------------------------------------------------------
-
-// Function Declaration: Calculate school metrics
-export function calculateSchoolSummary(classes, students, teachers, subjects, schedules) {
-  let activeClassesCount = 0;
-  let archivedClassesCount = 0;
-  let totalStudentCapacity = 0;
-
-  classes.forEach(function (cls) {
-    if (cls.isArchived) {
-      archivedClassesCount += 1;
-    } else {
-      activeClassesCount += 1;
-      totalStudentCapacity += Number(cls.capacity) || 0;
-    }
-  });
-
-  const totalEnrolledStudents = students.length;
-  const occupancyPercentage = totalStudentCapacity > 0
-    ? Math.round((totalEnrolledStudents / totalStudentCapacity) * 100)
-    : 0;
-
-  return {
-    totalClasses: classes.length,
-    activeClassesCount,
-    archivedClassesCount,
-    totalStudents: totalEnrolledStudents,
-    totalTeachers: teachers.length,
-    totalSubjects: subjects.length,
-    totalSchedules: schedules.length,
-    totalStudentCapacity,
-    occupancyPercentage
-  };
+// Function declaration with a DEFAULT PARAMETER (prefix = "item").
+// Makes a unique id such as "sbj-lq3k2a-1"; the counter keeps ids unique within one session.
+function generateId(prefix = "item") {
+  createdIdCount += 1;
+  return `${prefix}-${Date.now().toString(36)}-${createdIdCount}`;
 }
 
-// Function Expression: Format academic code
-export const formatAcademicCode = function (prefix, number) {
-  return `${String(prefix).toUpperCase()}-${String(number).padStart(3, "0")}`;
+// Function with a DEFAULT PARAMETER (separator = " - ").
+// Turns "08:00" and "09:00" into "08:00 - 09:00", the label used by the timetable.
+function formatTimeRange(start, end, separator = " - ") {
+  return `${start}${separator}${end}`;
+}
+
+// Splits a label like "08:00 - 09:00" back into { start, end } (the opposite of formatTimeRange).
+function parseTimeSlot(timeSlotLabel) {
+  const [start, end] = String(timeSlotLabel)
+    .split("-")
+    .map((part) => part.trim());
+  if (!start || !end) {
+    throw new Error(`Time slot must look like "08:00 - 09:00" (got "${timeSlotLabel}").`);
+  }
+  return { start, end };
+}
+
+// Function declaration: gives the timetable label of a schedule, e.g. "08:00 - 09:00".
+function getTimeSlotLabel(schedule) {
+  return formatTimeRange(schedule.time.start, schedule.time.end);
+}
+
+// Arrow function: names the real type of a value (typeof alone says "object" for null and arrays).
+const getTypeName = (value) => {
+  if (value === null) return "null";
+  if (Array.isArray(value)) return "array";
+  return typeof value;
 };
 
-// Arrow Function: Quick predicate search
-export const matchesQuery = (targetStr, queryStr) => {
-  if (!targetStr || !queryStr) return false;
-  return targetStr.toString().toLowerCase().includes(queryStr.trim().toLowerCase());
+// Function expression: a short text label for a subject, e.g. "MATH-101 - Advanced Mathematics".
+const getSubjectLabel = function (subject) {
+  return `${subject.code} - ${subject.name}`;
 };
 
-// Higher-Order Function: Creates a filter function for given search query and keys
-export function createEntityFilter(searchQuery, keysToMatch) {
+// FIND: returns the subject with this id, or null when it does not exist.
+function getSubjectById(subjects, subjectId) {
+  return subjects.find((subject) => subject.id === subjectId) || null;
+}
+
+// FILTER: returns only the schedules that happen on the given day.
+function getSchedulesByDay(schedules, day) {
+  return schedules.filter((schedule) => schedule.day === day);
+}
+
+// SORT: returns a new list of subjects ordered A-Z by name (the original list is not changed).
+const sortSubjectsByName = (subjects) =>
+  [...subjects].sort((first, second) => first.name.localeCompare(second.name));
+
+// SORT: returns a new list of schedules ordered by weekday first, then by start time.
+function sortSchedulesByDayAndTime(schedules) {
+  return [...schedules].sort((first, second) => {
+    const dayDifference = WEEKDAYS.indexOf(first.day) - WEEKDAYS.indexOf(second.day);
+    if (dayDifference !== 0) return dayDifference;
+    return first.time.start.localeCompare(second.time.start);
+  });
+}
+
+// REDUCE: counts subjects per department, e.g. { Sciences: 3, Mathematics: 1 }.
+const countSubjectsByDepartment = (subjects) =>
+  subjects.reduce((counts, subject) => {
+    counts[subject.department] = (counts[subject.department] || 0) + 1;
+    return counts;
+  }, {});
+
+// REDUCE: counts schedules per weekday, e.g. { Monday: 4, Tuesday: 3, ... } (days with none show 0).
+function countSchedulesByDay(schedules) {
+  const emptyCounts = Object.fromEntries(WEEKDAYS.map((day) => [day, 0]));
+  return schedules.reduce((counts, schedule) => {
+    counts[schedule.day] = (counts[schedule.day] || 0) + 1;
+    return counts;
+  }, emptyCounts);
+}
+
+// Higher-order function: builds a search function for the chosen fields.
+// Example: createEntityFilter("math", ["name", "code"]) returns a function to use with .filter().
+function createEntityFilter(searchQuery, keysToMatch) {
   return function (entity) {
     if (!searchQuery || searchQuery.trim() === "") return true;
     const query = searchQuery.toLowerCase().trim();
@@ -808,14 +863,257 @@ export function createEntityFilter(searchQuery, keysToMatch) {
       const value = entity[key];
       if (value === null || value === undefined) return false;
       if (Array.isArray(value)) {
-        return value.some((v) => String(v).toLowerCase().includes(query));
+        return value.some((item) => String(item).toLowerCase().includes(query));
       }
       return String(value).toLowerCase().includes(query);
     });
   };
 }
 
-// Utility to generate unique ID with prefix
-export const generateId = (prefix = "item") => {
-  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+// Totals used by the dashboard cards (classes, students, teachers, subjects, schedules, seats).
+function calculateSchoolSummary(classes, students, teachers, subjects, schedules) {
+  const activeClasses = classes.filter((cls) => !cls.isArchived);
+  const totalStudentCapacity = activeClasses.reduce(
+    (total, cls) => total + (Number(cls.capacity) || 0),
+    0
+  );
+  const occupancyPercentage =
+    totalStudentCapacity > 0 ? Math.round((students.length / totalStudentCapacity) * 100) : 0;
+
+  return {
+    totalClasses: classes.length,
+    activeClassesCount: activeClasses.length,
+    archivedClassesCount: classes.length - activeClasses.length,
+    totalStudents: students.length,
+    totalTeachers: teachers.length,
+    totalSubjects: subjects.length,
+    totalSchedules: schedules.length,
+    totalStudentCapacity,
+    occupancyPercentage
+  };
+}
+
+// Validation helper for the factories: returns the trimmed text, or throws if it is empty.
+function requireText(value, fieldLabel) {
+  if (typeof value !== "string" || value.trim() === "") {
+    throw new Error(`${fieldLabel} is required (got ${getTypeName(value)}).`);
+  }
+  return value.trim();
+}
+
+// Validation helper for the factories: turns a value into a positive number, or uses the fallback.
+function toPositiveNumber(value, fallback, fieldLabel) {
+  if (value === undefined || value === null || value === "") return fallback;
+  const number = Number(value);
+  if (!Number.isFinite(number) || number <= 0) {
+    throw new Error(`${fieldLabel} must be a positive number (got "${value}").`);
+  }
+  return number;
+}
+
+// ==========================================
+// SECTION 5: FACTORY PATTERN
+// Creates new subject and schedule objects in one place:
+// validates the input, fills in defaults, generates an id, and returns a new object
+// ==========================================
+
+// Factory: builds one valid subject object. Throws an Error when name or code is missing.
+function createSubject(subjectData = {}) {
+  return {
+    id: subjectData.id || generateId("sbj"),
+    code: requireText(subjectData.code, "Subject code").toUpperCase(),
+    name: requireText(subjectData.name, "Subject name"),
+    department: subjectData.department || "General",
+    credits: toPositiveNumber(subjectData.credits, DEFAULT_CREDITS, "Credits"),
+    weeklyHours: toPositiveNumber(subjectData.weeklyHours, DEFAULT_WEEKLY_HOURS, "Weekly hours"),
+    description: subjectData.description || "Course description.",
+    color: subjectData.color || DEFAULT_SUBJECT_COLOR,
+    isActive: subjectData.isActive ?? true,
+    isLab: subjectData.isLab ?? false
+  };
+}
+
+// Factory: builds one valid schedule object with a nested time { start, end }.
+// The time can be given as a "08:00 - 09:00" label (startTime, used by the form) or as a time object.
+function createSchedule(scheduleData = {}) {
+  const day = scheduleData.day || WEEKDAYS[0];
+  if (!WEEKDAYS.includes(day)) {
+    throw new Error(`Day must be one of ${WEEKDAYS.join(", ")} (got "${day}").`);
+  }
+
+  const time = scheduleData.startTime
+    ? parseTimeSlot(scheduleData.startTime)
+    : scheduleData.time || parseTimeSlot(SCHEDULE_TIME_SLOTS[0]);
+  if (time.end <= time.start) {
+    throw new Error(`End time (${time.end}) must be after start time (${time.start}).`);
+  }
+
+  return {
+    id: scheduleData.id || generateId("sch"),
+    classId: requireText(scheduleData.classId, "Class"),
+    subjectId: requireText(scheduleData.subjectId, "Subject"),
+    teacherId: scheduleData.teacherId || DEFAULT_UNASSIGNED_TEACHER,
+    day,
+    time: { start: time.start, end: time.end },
+    room: scheduleData.room || DEFAULT_ROOM,
+    type: scheduleData.type || DEFAULT_SESSION_TYPE
+  };
+}
+
+// Lookup object: maps a record type name to the factory that builds it.
+const RECORD_FACTORIES = {
+  subject: createSubject,
+  schedule: createSchedule
+};
+
+// Factory of factories: createRecord("subject", data) picks the right factory from the lookup object.
+function createRecord(recordType, recordData) {
+  const factory = RECORD_FACTORIES[recordType];
+  if (!factory) {
+    throw new Error(`Unknown record type "${recordType}".`);
+  }
+  return factory(recordData);
+}
+
+// ==========================================
+// SECTION 6: SINGLETON PATTERN
+// ONE shared DataStore holds all school data, so every page sees the same records
+// ==========================================
+
+// Singleton class: only one DataStore can ever exist. Get it with DataStore.getInstance().
+// It keeps classes, students, teachers, subjects and schedules, saves them in localStorage,
+// and tells React (through subscribe) whenever something changes.
+class DataStore {
+  static instance = null; // the single shared copy (null until first requested)
+
+  constructor() {
+    if (DataStore.instance) {
+      throw new Error("DataStore already exists. Use DataStore.getInstance() instead of new DataStore().");
+    }
+    this.listeners = new Set(); // functions to call after every change
+    this.data = {
+      classes: DataStore.loadList("classes", initialClasses),
+      students: DataStore.loadList("students", initialStudents),
+      teachers: DataStore.loadList("teachers", initialTeachers),
+      subjects: DataStore.loadList("subjects", initialSubjects, createSubject),
+      schedules: DataStore.loadList("schedules", initialSchedules, createSchedule)
+    };
+  }
+
+  // Returns the one shared DataStore, creating it the first time only.
+  static getInstance() {
+    if (!DataStore.instance) {
+      DataStore.instance = new DataStore();
+    }
+    return DataStore.instance;
+  }
+
+  // Reads one saved list from localStorage. Saved records pass through the factory (when given)
+  // so old saved data gets the newest fields. Falls back to the starting data on any problem.
+  static loadList(listName, startingList, buildRecord = (record) => record) {
+    try {
+      const savedText = localStorage.getItem(`${STORAGE_KEY}_${listName}`);
+      return savedText ? JSON.parse(savedText).map(buildRecord) : startingList;
+    } catch (error) {
+      console.warn(`Could not load saved ${listName}; using starting data.`, error);
+      return startingList;
+    }
+  }
+
+  get classes() { return this.data.classes; }
+  get students() { return this.data.students; }
+  get teachers() { return this.data.teachers; }
+  get subjects() { return this.data.subjects; }
+  get schedules() { return this.data.schedules; }
+
+  // Returns one list by name, for example getList("subjects").
+  getList(listName) {
+    return this.data[listName];
+  }
+
+  // Replaces one list. Pass the new list, or a function that receives the old list and returns the new one.
+  update(listName, newListOrUpdater) {
+    const newList =
+      typeof newListOrUpdater === "function" ? newListOrUpdater(this.data[listName]) : newListOrUpdater;
+    this.data = { ...this.data, [listName]: newList };
+    localStorage.setItem(`${STORAGE_KEY}_${listName}`, JSON.stringify(newList));
+    this.listeners.forEach((listener) => listener());
+  }
+
+  // Lets React watch the store: the listener runs after every change. Returns an "unsubscribe" function.
+  subscribe = (listener) => {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  };
+
+  // How many records exist right now (the sidebar badges read this).
+  getCounts() {
+    return {
+      students: this.students.length,
+      teachers: this.teachers.length,
+      subjects: this.subjects.length,
+      schedules: this.schedules.length
+    };
+  }
+
+  // Reset Data button: forget everything saved and go back to the starting data.
+  reset() {
+    ["classes", "students", "teachers", "subjects", "schedules"].forEach((listName) =>
+      localStorage.removeItem(`${STORAGE_KEY}_${listName}`)
+    );
+    this.data = {
+      classes: initialClasses,
+      students: initialStudents,
+      teachers: initialTeachers,
+      subjects: initialSubjects,
+      schedules: initialSchedules
+    };
+    this.listeners.forEach((listener) => listener());
+  }
+}
+
+// Proof that it is a singleton: asking twice returns the very same object, so this is true.
+const isSingletonStore = DataStore.getInstance() === DataStore.getInstance();
+
+// ==========================================
+// SECTION 7: EXPORTS
+// Everything other files are allowed to import from data.js
+// ==========================================
+export {
+  // Section 1: variables & types
+  SCHOOL_NAME,
+  ACADEMIC_YEAR,
+  SEMESTER,
+  WEEKDAYS,
+  GRADE_LEVELS,
+  DEPARTMENTS,
+  SCHEDULE_TIME_SLOTS,
+  // Section 2: objects
+  SCHOOL_INFO,
+  // Section 3: arrays
+  initialTeachers,
+  initialSubjects,
+  initialStudents,
+  initialClasses,
+  initialSchedules,
+  // Section 4: functions
+  generateId,
+  formatTimeRange,
+  getTimeSlotLabel,
+  getSubjectLabel,
+  getSubjectById,
+  getSchedulesByDay,
+  sortSubjectsByName,
+  sortSchedulesByDayAndTime,
+  countSubjectsByDepartment,
+  countSchedulesByDay,
+  createEntityFilter,
+  calculateSchoolSummary,
+  // Section 5: factory
+  createSubject,
+  createSchedule,
+  createRecord,
+  // Section 6: singleton
+  DataStore,
+  isSingletonStore
 };

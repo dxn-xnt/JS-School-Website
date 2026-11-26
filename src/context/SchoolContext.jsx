@@ -1,57 +1,37 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useSyncExternalStore } from "react";
 import {
-  initialClasses,
-  initialStudents,
-  initialTeachers,
-  initialSubjects,
-  initialSchedules,
+  DataStore,
   calculateSchoolSummary,
   generateId,
-  createEntityFilter
+  getSubjectById as findSubjectById,
+  createRecord,
+  createSchedule
 } from "../data";
 
 const SchoolContext = createContext(null);
 
-const STORAGE_KEY = "evergreen_school_admin_v2";
+// The ONE shared DataStore (singleton, see data.js Section 6). All records live there.
+const store = DataStore.getInstance();
+
+// Reads one list from the DataStore and re-renders React whenever the store changes.
+// Returns [list, setList] so the code below can keep using setX(prev => ...).
+function useStoreList(listName) {
+  const list = useSyncExternalStore(store.subscribe, () => store.getList(listName));
+  const setList = (newListOrUpdater) => store.update(listName, newListOrUpdater);
+  return [list, setList];
+}
 
 export function SchoolProvider({ children }) {
-  const [classes, setClasses] = useState(() => {
-    const saved = localStorage.getItem(`${STORAGE_KEY}_classes`);
-    return saved ? JSON.parse(saved) : initialClasses;
-  });
-
-  const [students, setStudents] = useState(() => {
-    const saved = localStorage.getItem(`${STORAGE_KEY}_students`);
-    return saved ? JSON.parse(saved) : initialStudents;
-  });
-
-  const [teachers, setTeachers] = useState(() => {
-    const saved = localStorage.getItem(`${STORAGE_KEY}_teachers`);
-    return saved ? JSON.parse(saved) : initialTeachers;
-  });
-
-  const [subjects, setSubjects] = useState(() => {
-    const saved = localStorage.getItem(`${STORAGE_KEY}_subjects`);
-    return saved ? JSON.parse(saved) : initialSubjects;
-  });
-
-  const [schedules, setSchedules] = useState(() => {
-    const saved = localStorage.getItem(`${STORAGE_KEY}_schedules`);
-    return saved ? JSON.parse(saved) : initialSchedules;
-  });
+  const [classes, setClasses] = useStoreList("classes");
+  const [students, setStudents] = useStoreList("students");
+  const [teachers, setTeachers] = useStoreList("teachers");
+  const [subjects, setSubjects] = useStoreList("subjects");
+  const [schedules, setSchedules] = useStoreList("schedules");
 
   const [activePage, setActivePage] = useState("dashboard");
   const [selectedClassId, setSelectedClassId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [toast, setToast] = useState(null);
-
-  useEffect(() => {
-    localStorage.setItem(`${STORAGE_KEY}_classes`, JSON.stringify(classes));
-    localStorage.setItem(`${STORAGE_KEY}_students`, JSON.stringify(students));
-    localStorage.setItem(`${STORAGE_KEY}_teachers`, JSON.stringify(teachers));
-    localStorage.setItem(`${STORAGE_KEY}_subjects`, JSON.stringify(subjects));
-    localStorage.setItem(`${STORAGE_KEY}_schedules`, JSON.stringify(schedules));
-  }, [classes, students, teachers, subjects, schedules]);
 
   const showToast = (message, type = "success") => {
     const toastId = generateId("toast");
@@ -71,7 +51,7 @@ export function SchoolProvider({ children }) {
 
   const getClassById = (id) => classes.find((c) => c.id === id) || null;
   const getTeacherById = (id) => teachers.find((t) => t.id === id) || null;
-  const getSubjectById = (id) => subjects.find((s) => s.id === id) || null;
+  const getSubjectById = (id) => findSubjectById(subjects, id);
   const getStudentById = (id) => students.find((st) => st.id === id) || null;
 
   const getEnrolledStudentsForClass = (classId) => {
@@ -458,16 +438,14 @@ export function SchoolProvider({ children }) {
   };
 
   const addSubject = (subjectData) => {
-    const newSubject = {
-      id: generateId("sbj"),
-      code: subjectData.code.trim().toUpperCase(),
-      name: subjectData.name.trim(),
-      department: subjectData.department || "General",
-      credits: Number(subjectData.credits) || 3,
-      weeklyHours: Number(subjectData.weeklyHours) || 3,
-      description: subjectData.description || "Course description.",
-      color: subjectData.color || "from-blue-500 to-indigo-600"
-    };
+    // The factory validates the input, fills defaults and generates the id (data.js Section 5).
+    let newSubject;
+    try {
+      newSubject = createRecord("subject", subjectData);
+    } catch (error) {
+      showToast(error.message, "error");
+      return null;
+    }
 
     setSubjects((prev) => [newSubject, ...prev]);
     showToast(`Subject "${newSubject.name}" created!`, "success");
@@ -505,16 +483,14 @@ export function SchoolProvider({ children }) {
   };
 
   const addSchedule = (scheduleData) => {
-    const newSchedule = {
-      id: generateId("sch"),
-      classId: scheduleData.classId,
-      subjectId: scheduleData.subjectId,
-      teacherId: scheduleData.teacherId || null,
-      day: scheduleData.day || "Monday",
-      startTime: scheduleData.startTime || "08:00 - 09:00",
-      room: scheduleData.room || "Room TBA",
-      type: scheduleData.type || "Lecture"
-    };
+    // The factory validates the input, fills defaults and generates the id (data.js Section 5).
+    let newSchedule;
+    try {
+      newSchedule = createRecord("schedule", scheduleData);
+    } catch (error) {
+      showToast(error.message, "error");
+      return null;
+    }
 
     const targetClass = getClassById(newSchedule.classId);
     if (targetClass && !targetClass.subjectIds.includes(newSchedule.subjectId)) {
@@ -527,9 +503,15 @@ export function SchoolProvider({ children }) {
   };
 
   const editSchedule = (id, updatedFields) => {
-    setSchedules((prev) =>
-      prev.map((sch) => (sch.id === id ? { ...sch, ...updatedFields } : sch))
-    );
+    try {
+      // Rebuild the slot through the factory so the edited time is validated too.
+      setSchedules((prev) =>
+        prev.map((sch) => (sch.id === id ? createSchedule({ ...sch, ...updatedFields }) : sch))
+      );
+    } catch (error) {
+      showToast(error.message, "error");
+      return;
+    }
     showToast("Schedule timetable slot updated!", "success");
   };
 
@@ -539,17 +521,7 @@ export function SchoolProvider({ children }) {
   };
 
   const resetToDefaultData = () => {
-    localStorage.removeItem(`${STORAGE_KEY}_classes`);
-    localStorage.removeItem(`${STORAGE_KEY}_students`);
-    localStorage.removeItem(`${STORAGE_KEY}_teachers`);
-    localStorage.removeItem(`${STORAGE_KEY}_subjects`);
-    localStorage.removeItem(`${STORAGE_KEY}_schedules`);
-
-    setClasses(initialClasses);
-    setStudents(initialStudents);
-    setTeachers(initialTeachers);
-    setSubjects(initialSubjects);
-    setSchedules(initialSchedules);
+    store.reset(); // the singleton restores the starting data and notifies React
     setSelectedClassId(null);
     showToast("All records reset to initial static school data!", "info");
   };

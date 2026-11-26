@@ -41,6 +41,7 @@ import { ClassModal } from "../components/modals/ClassModal";
 import { AssignStudentModal } from "../components/modals/AssignStudentModal";
 import { AssignSubjectModal } from "../components/modals/AssignSubjectModal";
 import { ScheduleModal } from "../components/modals/ScheduleModal";
+import { getTimeSlotLabel } from "../data";
 
 export function ClassDetailsPage() {
   const {
@@ -514,7 +515,7 @@ export function ClassDetailsPage() {
                       <div className="space-y-1 text-xs text-muted-foreground">
                         <div className="flex items-center gap-2">
                           <Clock className="w-3.5 h-3.5" />
-                          <span>{slot.startTime}</span>
+                          <span>{getTimeSlotLabel(slot)}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <MapPin className="w-3.5 h-3.5" />

@@ -45,8 +45,8 @@ function AppContent() {
           {/* {activePage === "class-details" && <ClassDetailsPage />} */}
           {activePage === "students" && <StudentsPage />}
           {activePage === "teachers" && <TeachersPage />}
-          {/* {activePage === "subjects" && <SubjectsPage />} */}
-          {/* {activePage === "schedules" && <SchedulesPage />} */}
+          {activePage === "subjects" && <SubjectsPage />}
+          {activePage === "schedules" && <SchedulesPage />}
           {/* {activePage === "js-concepts" && <JsConceptsPage />} */}
         </main>
       </div>

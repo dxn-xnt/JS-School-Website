@@ -153,7 +153,7 @@ export function Header() {
                     <UserCheck className="w-4 h-4 text-primary" />
                     <span>Add Faculty Teacher</span>
                   </button>
-                  {/* <button
+                  <button
                     onClick={() => {
                       setModalType("subject");
                       setIsQuickAddOpen(false);
@@ -162,8 +162,8 @@ export function Header() {
                   >
                     <BookOpen className="w-4 h-4 text-primary" />
                     <span>Add Course Subject</span>
-                  </button> */}
-                  {/* <button
+                  </button>
+                  <button
                     onClick={() => {
                       setModalType("schedule");
                       setIsQuickAddOpen(false);
@@ -172,7 +172,7 @@ export function Header() {
                   >
                     <CalendarDays className="w-4 h-4 text-primary" />
                     <span>Add Schedule Slot</span>
-                  </button> */}
+                  </button>
                 </Card>
               </>
             )}
@@ -230,14 +230,14 @@ export function Header() {
         isOpen={modalType === "teacher"}
         onClose={() => setModalType(null)}
       />
-      {/* <SubjectModal
+      <SubjectModal
         isOpen={modalType === "subject"}
         onClose={() => setModalType(null)}
-      /> */}
-      {/* <ScheduleModal
+      />
+      <ScheduleModal
         isOpen={modalType === "schedule"}
         onClose={() => setModalType(null)}
-      /> */}
+      />
     </>
   );
 }

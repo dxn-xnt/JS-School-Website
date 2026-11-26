@@ -19,7 +19,15 @@ import {
   Award
 } from "lucide-react";
 import { SubjectModal } from "../components/modals/SubjectModal";
-import { DEPARTMENTS } from "../data";
+import {
+  DEPARTMENTS,
+  SCHOOL_INFO,
+  DataStore,
+  isSingletonStore,
+  createEntityFilter,
+  sortSubjectsByName,
+  countSubjectsByDepartment
+} from "../data";
 
 export function SubjectsPage() {
   const {
@@ -38,23 +46,18 @@ export function SubjectsPage() {
 
   const activeSearch = localSearch || globalSearch;
 
+  // FILTER (department + search), then SORT A-Z. The search function comes from createEntityFilter.
   const filteredSubjects = useMemo(() => {
-    return subjects.filter((s) => {
-      if (deptFilter !== "ALL" && s.department !== deptFilter) return false;
-
-      if (activeSearch.trim()) {
-        const query = activeSearch.toLowerCase().trim();
-        const matchesName = s.name.toLowerCase().includes(query);
-        const matchesCode = s.code.toLowerCase().includes(query);
-        const matchesDept = s.department.toLowerCase().includes(query);
-        const matchesDesc = s.description?.toLowerCase().includes(query);
-
-        return matchesName || matchesCode || matchesDept || matchesDesc;
-      }
-
-      return true;
-    });
+    const matchesSearch = createEntityFilter(activeSearch, ["name", "code", "department", "description"]);
+    const matchingSubjects = subjects.filter(
+      (subject) => (deptFilter === "ALL" || subject.department === deptFilter) && matchesSearch(subject)
+    );
+    return sortSubjectsByName(matchingSubjects);
   }, [subjects, deptFilter, activeSearch]);
+
+  // REDUCE: subjects per department, and total credits of the subjects on screen.
+  const subjectsPerDepartment = countSubjectsByDepartment(subjects);
+  const totalCredits = filteredSubjects.reduce((total, subject) => total + subject.credits, 0);
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -102,7 +105,18 @@ export function SubjectsPage() {
         </div>
       </Card>
 
-      {/* Subject Cards */}
+      {/* Subjects per department (REDUCE) and total credits shown */}
+      <div className="flex flex-wrap items-center gap-2 text-xs">
+        {Object.entries(subjectsPerDepartment).map(([department, count]) => (
+          <Badge key={department} variant="outline">
+            {department}: {count}
+          </Badge>
+        ))}
+        <span className="ml-auto text-muted-foreground font-semibold">
+          {filteredSubjects.length} shown · {totalCredits} total credits
+        </span>
+      </div>
+
       {filteredSubjects.length === 0 ? (
         <EmptyState
           icon={BookOpen}
@@ -128,9 +142,13 @@ export function SubjectsPage() {
                     <Badge variant="secondary">
                       {subject.code}
                     </Badge>
-                    <Badge variant="outline">
-                      {subject.department}
-                    </Badge>
+                    <div className="flex items-center gap-1">
+                      {subject.isLab && <Badge variant="outline">Lab</Badge>}
+                      {!subject.isActive && <Badge variant="outline">Inactive</Badge>}
+                      <Badge variant="outline">
+                        {subject.department}
+                      </Badge>
+                    </div>
                   </div>
 
                   <h3 className="text-base font-bold text-foreground">
@@ -216,6 +234,12 @@ export function SubjectsPage() {
         initialData={modalState.data}
         onClose={() => setModalState({ isOpen: false, data: null })}
       />
+
+      {/* Proof that this page reads from the shared DataStore singleton */}
+      <p className="text-[11px] text-muted-foreground text-center">
+        {SCHOOL_INFO.getTitle()} · Data source: DataStore singleton ({DataStore.getInstance().subjects.length} subjects) ·
+        same instance every time: {isSingletonStore ? "yes" : "no"}
+      </p>
 
       {/* Delete Confirmation */}
       <ConfirmDialog

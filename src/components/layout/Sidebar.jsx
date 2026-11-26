@@ -12,12 +12,12 @@ import {
   School,
   Sparkles
 } from "lucide-react";
-import { SCHOOL_NAME, ACADEMIC_YEAR, SEMESTER } from "../../data";
+import { SCHOOL_NAME, ACADEMIC_YEAR, SEMESTER, DataStore } from "../../data";
 
 export function Sidebar() {
-  const { activePage, navigateTo, classes, students, teachers, subjects, schedules } = useSchool();
-
-  const activeClassesCount = classes.filter((c) => !c.isArchived).length;
+  // useSchool() re-renders the sidebar on every change; the counts come from the DataStore singleton.
+  const { activePage, navigateTo } = useSchool();
+  const counts = DataStore.getInstance().getCounts();
 
   const navItems = [
     {
@@ -36,33 +36,26 @@ export function Sidebar() {
       id: "students",
       label: "Students",
       icon: Users,
-      badge: students.length
+      badge: counts.students
     },
     {
       id: "teachers",
       label: "Teachers",
       icon: UserCheck,
-      badge: teachers.length
+      badge: counts.teachers
     },
-    // {
-    //   id: "subjects",
-    //   label: "Subjects",
-    //   icon: BookOpen,
-    //   badge: subjects.length
-    // },
-    // {
-    //   id: "schedules",
-    //   label: "Schedules",
-    //   icon: CalendarDays,
-    //   badge: schedules.length
-    // },
-    // {
-    //   id: "js-concepts",
-    //   label: "JS Concepts",
-    //   icon: Code2,
-    //   badge: "8 Concepts",
-    //   special: true
-    // }
+    {
+      id: "subjects",
+      label: "Subjects",
+      icon: BookOpen,
+      badge: counts.subjects
+    },
+    {
+      id: "schedules",
+      label: "Schedules",
+      icon: CalendarDays,
+      badge: counts.schedules
+    },
   ];
 
   return (

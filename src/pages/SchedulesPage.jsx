@@ -28,7 +28,18 @@ import {
   GraduationCap
 } from "lucide-react";
 import { ScheduleModal } from "../components/modals/ScheduleModal";
-import { WEEKDAYS, SCHEDULE_TIME_SLOTS } from "../data";
+import {
+  WEEKDAYS,
+  SCHEDULE_TIME_SLOTS,
+  SCHOOL_INFO,
+  DataStore,
+  isSingletonStore,
+  getTimeSlotLabel,
+  getSubjectLabel,
+  getSchedulesByDay,
+  sortSchedulesByDayAndTime,
+  countSchedulesByDay
+} from "../data";
 
 export function SchedulesPage() {
   const {
@@ -50,15 +61,21 @@ export function SchedulesPage() {
   const [modalState, setModalState] = useState({ isOpen: false, data: null });
   const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, scheduleId: null });
 
-  // Filter schedules
+  // FILTER by day (getSchedulesByDay), then by class and subject.
   const filteredSchedules = useMemo(() => {
-    return schedules.filter((sch) => {
-      if (dayFilter !== "ALL" && sch.day !== dayFilter) return false;
-      if (classFilter !== "ALL" && sch.classId !== classFilter) return false;
-      if (subjectFilter !== "ALL" && sch.subjectId !== subjectFilter) return false;
-      return true;
-    });
+    const schedulesOnDay = dayFilter === "ALL" ? schedules : getSchedulesByDay(schedules, dayFilter);
+    return schedulesOnDay.filter(
+      (sch) =>
+        (classFilter === "ALL" || sch.classId === classFilter) &&
+        (subjectFilter === "ALL" || sch.subjectId === subjectFilter)
+    );
   }, [schedules, dayFilter, classFilter, subjectFilter]);
+
+  // REDUCE: how many schedules happen on each weekday (shown as the chips below).
+  const schedulesPerDay = countSchedulesByDay(schedules);
+
+  // SORT: the list view is ordered by weekday, then start time.
+  const sortedSchedules = sortSchedulesByDayAndTime(filteredSchedules);
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -106,7 +123,7 @@ export function SchedulesPage() {
               value={subjectFilter}
               onChange={setSubjectFilter}
               label="All Subjects"
-              options={subjects.map((s) => ({ value: s.id, label: `${s.code} - ${s.name}` }))}
+              options={subjects.map((s) => ({ value: s.id, label: getSubjectLabel(s) }))}
             />
           </div>
 
@@ -137,6 +154,24 @@ export function SchedulesPage() {
           </div>
         </div>
       </Card>
+
+      {/* Schedules per weekday (REDUCE). Click a day to filter by it. */}
+      <div className="flex flex-wrap items-center gap-2 text-xs">
+        {WEEKDAYS.map((day) => (
+          <button
+            key={day}
+            onClick={() => setDayFilter(dayFilter === day ? "ALL" : day)}
+            className="cursor-pointer"
+          >
+            <Badge variant={dayFilter === day ? "default" : "outline"}>
+              {day}: {schedulesPerDay[day]}
+            </Badge>
+          </button>
+        ))}
+        <span className="ml-auto text-muted-foreground font-semibold">
+          {filteredSchedules.length} of {schedules.length} slots shown
+        </span>
+      </div>
 
       {/* TIMETABLE MATRIX VIEW */}
       {viewMode === "timetable" ? (
@@ -174,7 +209,7 @@ export function SchedulesPage() {
                     {/* Days columns */}
                     {WEEKDAYS.map((day) => {
                       const matchingSlots = filteredSchedules.filter(
-                        (s) => s.day === day && s.startTime === timeSlot
+                        (s) => s.day === day && getTimeSlotLabel(s) === timeSlot
                       );
 
                       const isDimmed = dayFilter !== "ALL" && dayFilter !== day;
@@ -283,7 +318,7 @@ export function SchedulesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredSchedules.map((slot) => {
+                {sortedSchedules.map((slot) => {
                   const cls = getClassById(slot.classId);
                   const subject = getSubjectById(slot.subjectId);
                   const teacher = getTeacherById(slot.teacherId);
@@ -295,7 +330,7 @@ export function SchedulesPage() {
                           <Badge variant="secondary" className="font-bold">
                             {slot.day}
                           </Badge>
-                          <span className="text-xs text-muted-foreground">{slot.startTime}</span>
+                          <span className="text-xs text-muted-foreground">{getTimeSlotLabel(slot)}</span>
                         </div>
                       </TableCell>
                       <TableCell className="px-5 py-4 font-bold text-foreground">
@@ -355,6 +390,12 @@ export function SchedulesPage() {
         initialData={modalState.data}
         onClose={() => setModalState({ isOpen: false, data: null })}
       />
+
+      {/* Proof that this page reads from the same DataStore singleton as the Subjects page */}
+      <p className="text-[11px] text-muted-foreground text-center">
+        {SCHOOL_INFO.getTitle()} · Data source: DataStore singleton ({DataStore.getInstance().schedules.length} schedules) ·
+        same instance every time: {isSingletonStore ? "yes" : "no"}
+      </p>
 
       {/* Delete Confirmation */}
       <ConfirmDialog

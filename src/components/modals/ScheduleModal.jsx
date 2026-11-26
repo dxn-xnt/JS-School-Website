@@ -3,7 +3,7 @@ import { Modal } from "../common/UIComponents";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSchool } from "../../context/SchoolContext";
-import { WEEKDAYS, SCHEDULE_TIME_SLOTS } from "../../data";
+import { WEEKDAYS, SCHEDULE_TIME_SLOTS, getTimeSlotLabel } from "../../data";
 
 export function ScheduleModal({ isOpen, onClose, initialData = null, defaultClassId = null }) {
   const { classes, subjects, teachers, addSchedule, editSchedule } = useSchool();
@@ -26,7 +26,7 @@ export function ScheduleModal({ isOpen, onClose, initialData = null, defaultClas
         subjectId: initialData.subjectId || (subjects[0]?.id ?? ""),
         teacherId: initialData.teacherId || "",
         day: initialData.day || WEEKDAYS[0],
-        startTime: initialData.startTime || SCHEDULE_TIME_SLOTS[0],
+        startTime: initialData.time ? getTimeSlotLabel(initialData) : SCHEDULE_TIME_SLOTS[0],
         room: initialData.room || "",
         type: initialData.type || "Lecture"
       });

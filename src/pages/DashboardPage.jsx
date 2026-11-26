@@ -25,6 +25,7 @@ import { ClassModal } from "../components/modals/ClassModal";
 import { StudentModal } from "../components/modals/StudentModal";
 import { TeacherModal } from "../components/modals/TeacherModal";
 import { ScheduleModal } from "../components/modals/ScheduleModal";
+import { getTimeSlotLabel } from "../data";
 
 export function DashboardPage() {
   const {
@@ -109,7 +110,7 @@ export function DashboardPage() {
               <Plus className="w-4 h-4" />
               Add Faculty Teacher
             </Button>
-            {/* <Button
+            <Button
               variant="outline"
               size="sm"
               onClick={() => setModalType("schedule")}
@@ -117,7 +118,7 @@ export function DashboardPage() {
             >
               <Plus className="w-4 h-4" />
               Schedule Timetable
-            </Button> */}
+            </Button>
             {/* <Button
               variant="ghost"
               size="sm"
@@ -132,7 +133,7 @@ export function DashboardPage() {
       </div>
 
       {/* Metric Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* <StatCard
           title="Active Classes"
           value={summaryStats.activeClassesCount}
@@ -154,135 +155,95 @@ export function DashboardPage() {
           icon={UserCheck}
           onClick={() => navigateTo("teachers")}
         />
-        {/* <StatCard
+        <StatCard
           title="Curriculum Subjects"
           value={summaryStats.totalSubjects}
           subtitle="Across 6 Academic Depts"
           icon={BookOpen}
           onClick={() => navigateTo("subjects")}
-        /> */}
+        />
         {/* <StatCard
           title="Class Occupancy"
           value={`${summaryStats.occupancyPercentage}%`}
           subtitle={`${summaryStats.totalStudents}/${summaryStats.totalStudentCapacity} Total Seats`}
           icon={Percent}
         /> */}
-        {/* <StatCard
+        <StatCard
           title="Weekly Timetables"
           value={summaryStats.totalSchedules}
           subtitle="Active Schedule Slots"
           icon={CalendarDays}
           onClick={() => navigateTo("schedules")}
-        /> */}
+        />
       </div>
 
-      {/* 2-Column Content Grid */}
-      {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="p-5 shadow-xs flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                <Layers className="w-4 h-4 text-primary" />
-                Grade Level Cohorts
-              </h3>
-              <span className="text-xs text-muted-foreground font-medium">4 Levels</span>
-            </div>
+      {/* Featured Schedule Highlights */}
+      <Card className="p-5 shadow-xs flex flex-col justify-between">
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+              <Clock className="w-4 h-4 text-primary" />
+              Featured Schedule Highlights
+            </h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigateTo("schedules")}
+              className="gap-1 text-xs"
+            >
+              <span>View Full Timetable</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Button>
+          </div>
 
-            <div className="space-y-3.5">
-              {gradeDistribution.map((item) => {
-                const maxScale = Math.max(...gradeDistribution.map((g) => g.studentCount), 1);
-                const percentage = Math.round((item.studentCount / maxScale) * 100);
+          <div className="divide-y divide-border">
+            {sampleSchedules.map((slot) => {
+              const cls = classes.find((c) => c.id === slot.classId);
+              const teacher = getTeacherById(slot.teacherId);
+              const subject = getSubjectById(slot.subjectId);
 
-                return (
-                  <div key={item.grade} className="space-y-1.5">
-                    <div className="flex justify-between text-xs font-semibold">
-                      <span className="text-foreground">{item.grade}</span>
-                      <span className="text-muted-foreground">
-                        {item.classCount} classes • {item.studentCount} students
-                      </span>
+              return (
+                <div
+                  key={slot.id}
+                  className="py-3 flex items-center justify-between gap-4 hover:bg-muted/40 rounded-xl px-2.5 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-xl bg-primary/10 p-2 text-primary font-bold text-xs">
+                      {slot.day.substring(0, 3)}
                     </div>
-                    <Progress value={percentage} className="h-2" />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="mt-6 pt-4 border-t border-border flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Capacity Utilization</span>
-            <span className="font-bold text-primary">
-              {summaryStats.totalStudents} / {summaryStats.totalStudentCapacity} Allocated Seats
-            </span>
-          </div>
-        </Card>
-
-        <Card className="lg:col-span-2 p-5 shadow-xs flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                <Clock className="w-4 h-4 text-primary" />
-                Featured Schedule Highlights
-              </h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigateTo("schedules")}
-                className="gap-1 text-xs"
-              >
-                <span>View Full Timetable</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Button>
-            </div>
-
-            <div className="divide-y divide-border">
-              {sampleSchedules.map((slot) => {
-                const cls = classes.find((c) => c.id === slot.classId);
-                const teacher = getTeacherById(slot.teacherId);
-                const subject = getSubjectById(slot.subjectId);
-
-                return (
-                  <div
-                    key={slot.id}
-                    className="py-3 flex items-center justify-between gap-4 hover:bg-muted/40 rounded-xl px-2.5 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="rounded-xl bg-primary/10 p-2 text-primary font-bold text-xs">
-                        {slot.day.substring(0, 3)}
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-foreground">
+                          {subject?.name || "Subject"}
+                        </span>
+                        <Badge variant="outline">
+                          {cls?.name || "Class"}
+                        </Badge>
+                        <Badge variant="secondary">
+                          {slot.type}
+                        </Badge>
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-foreground">
-                            {subject?.name || "Subject"}
-                          </span>
-                          <Badge variant="outline">
-                            {cls?.name || "Class"}
-                          </Badge>
-                          <Badge variant="secondary">
-                            {slot.type}
-                          </Badge>
-                        </div>
-                        <p className="text-[11px] text-muted-foreground flex items-center gap-2 mt-0.5">
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {slot.startTime}
-                          </span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3" />
-                            {slot.room}
-                          </span>
-                          <span>•</span>
-                          <span>{teacher?.name || "No Teacher"}</span>
-                        </p>
-                      </div>
+                      <p className="text-[11px] text-muted-foreground flex items-center gap-2 mt-0.5">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {getTimeSlotLabel(slot)}
+                        </span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {slot.room}
+                        </span>
+                        <span>•</span>
+                        <span>{teacher?.name || "No Teacher"}</span>
+                      </p>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
-        </Card>
-      </div> */}
+        </div>
+      </Card>
 
       {/* Active Classes Grid Preview */}
       {/* <Card className="p-5 shadow-xs">
@@ -364,7 +325,7 @@ export function DashboardPage() {
       {/* <ClassModal isOpen={modalType === "class"} onClose={() => setModalType(null)} /> */}
       <StudentModal isOpen={modalType === "student"} onClose={() => setModalType(null)} />
       <TeacherModal isOpen={modalType === "teacher"} onClose={() => setModalType(null)} />
-      {/* <ScheduleModal isOpen={modalType === "schedule"} onClose={() => setModalType(null)} /> */}
+      <ScheduleModal isOpen={modalType === "schedule"} onClose={() => setModalType(null)} />
     </div>
   );
 }
